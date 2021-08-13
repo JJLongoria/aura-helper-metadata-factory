@@ -1,0 +1,55 @@
+{
+  "name": "@ah/metadata-factory",
+  "productName": "Aura Helper Metadata Factory",
+  "version": "1.0.0",
+  "description": "Library to create Aura Helper Metadata types from SFDX Responses, Local Project or other data sources",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --coverage"
+  },
+  "keywords": [
+    "aura-helper-framework",
+    "aura helper framework",
+    "Aura Helper Framework",
+    "ah-framework",
+    "AH Framework",
+    "Aura Helper",
+    "aura-helper",
+    "AuraHelper Library",
+    "AuraHelper Libraries",
+    "AH",
+    "ah",
+    "Salesforce",
+    "Salesforce Metadata",
+    "Salesforce Apps",
+    "Salesforce XML",
+    "Salesforce Tools",
+    "Apex",
+    "force.com",
+    "DevOps",
+		"devops",
+    "sf-metadata-factory",
+    "SF Metadata Factory",
+    "SF Metadata",
+    "metadata-factory",
+    "Metadata Factory"
+  ],
+  "author": "Juan José Longoria López (Kanko) <juanjoselongoria@gmail.com>",
+  "license": "GPLv3",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JJLongoria/aura-helper-metadata-factory.git"
+  },
+  "bugs": {
+		"url": "https://github.com/JJLongoria/aura-helper-metadata-factory/issues",
+		"email": "juanjoselongoria@gmail.com"
+	},
+  "dependencies": {
+    "@ah/core": "file:../ah-core",
+    "@ah/languages": "file:../ah-languages"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.20",
+    "jest": "^26.6.3"
+  }
+}
