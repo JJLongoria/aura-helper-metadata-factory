@@ -107,7 +107,7 @@ describe('Testing ./src/types/factory.js', () => {
                 }
             ]
         }
-        const metadataType1 = MetadataFactory.createMetedataTypeFromResponse(response1, 'CustomObject', true, '');
+        const metadataType1 = MetadataFactory.createMetedataTypeFromResponse('CustomObject', response1, '', true);
         expect(metadataType1.name).toEqual('CustomObject');
         expect(metadataType1.getChild('Account').name).toEqual('Account');
         expect(metadataType1.getChild('Case').name).toEqual('Case');
@@ -122,7 +122,7 @@ describe('Testing ./src/types/factory.js', () => {
                 }
             ]
         };
-        const metadataType2 = MetadataFactory.createMetedataTypeFromResponse(response2, 'CustomField', true, '');
+        const metadataType2 = MetadataFactory.createMetedataTypeFromResponse('CustomField', response2, '', true);
         expect(metadataType2.name).toEqual('CustomField');
         expect(metadataType2.getChild('Account').name).toEqual('Account');
         expect(metadataType2.getChild('Account').getChild('Name').name).toEqual('Name');
@@ -138,7 +138,7 @@ describe('Testing ./src/types/factory.js', () => {
                 }
             ]
         };
-        const metadataType3 = MetadataFactory.createMetedataTypeFromResponse(response3, 'CustomObject', false, '');
+        const metadataType3 = MetadataFactory.createMetedataTypeFromResponse('CustomObject', response3, '', true);
         expect(metadataType3.name).toEqual('CustomObject');
         expect(metadataType3.getChild('Account').name).toEqual('Account');
         expect(metadataType3.getChild('Case').name).toEqual('Case');
@@ -153,7 +153,7 @@ describe('Testing ./src/types/factory.js', () => {
                 }
             ]
         };
-        const metadataType4 = MetadataFactory.createMetedataTypeFromResponse(response4, 'CustomField', false, '');
+        const metadataType4 = MetadataFactory.createMetedataTypeFromResponse('CustomField', response4, '', true);
         expect(metadataType4.name).toEqual('CustomField');
         expect(metadataType4.getChild('Account').name).toEqual('Account');
         expect(metadataType4.getChild('Account').getChild('Name').name).toEqual('Name');
@@ -169,21 +169,21 @@ describe('Testing ./src/types/factory.js', () => {
                 }
             ]
         };
-        const metadataType5 = MetadataFactory.createMetedataTypeFromResponse(response5, 'Layout', false, '');
+        const metadataType5 = MetadataFactory.createMetedataTypeFromResponse('Layout', response5, '', true);
         expect(metadataType5.name).toEqual('Layout');
         expect(metadataType5.getChild('Account').name).toEqual('Account');
         expect(metadataType5.getChild('Account').getChild('Account_Layout1').name).toEqual('Account_Layout1');
         expect(metadataType5.getChild('Account').getChild('Account_Layout2').name).toEqual('Account_Layout2');
 
         const response6 = undefined;
-        const metadataType6 = MetadataFactory.createMetedataTypeFromResponse(response6, 'Layout', false, '');
+        const metadataType6 = MetadataFactory.createMetedataTypeFromResponse('Layout', response6, '', true);
         expect(metadataType6).toBeUndefined();
 
         const response7 = {
             status: 0,
             result: undefined
         };
-        const metadataType7 = MetadataFactory.createMetedataTypeFromResponse(response7, 'Layout', false, '');
+        const metadataType7 = MetadataFactory.createMetedataTypeFromResponse('Layout', response7, '', true);
         expect(metadataType7).toBeUndefined();
     });
     test('Testing createNotIncludedMetadataType()', () => {
