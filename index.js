@@ -1,4 +1,5 @@
 const { MetadataDetail, MetadataType, MetadataObject, MetadataItem, SObject, SObjectField, PicklistValue, RecordType } = require('@ah/core').Types;
+const { WrongFormatException, WrongDatatypeException } = require('@ah/core').Exceptions;
 const { XMLParser, XMLUtils } = require('@ah/languages').XML;
 const { Utils, StrUtils, Validator, ProjectUtils, MetadataUtils } = require('@ah/core').CoreUtils;
 const { FileReader, FileChecker, PathUtils } = require('@ah/core').FileSystem;
@@ -82,15 +83,41 @@ METADATA_XML_RELATION = {
     }
 }
 
-class Factory {
+/**
+ * Class with several util methods to create the Aura Helper Metadata JSON from several sources like queries result, file system, git... or work with other SObject or Metadata object types like MetadataDetails, MetadataFolderMap or SOjects collections.
+ */
+class MetadataFactory {
 
-    static createMetadataDetails(metadataFromSFDX) {
+    /**
+     * Method to create the MeadataDetails objects collection from SFDX describe metadata types used in Aura Helper Connector. Can process the response directly or process a file with the response content
+     * @param {String | Object} responseOrPath SFDX String response or JSON response or path to the file with the response data 
+     * 
+     * @returns {Array<MetadataDetail>} Array with the MetadataDetails for all metadata types received on the response
+     * 
+     * @throws {WrongFilePathException} If the path is not a String or cant convert to absolute path
+     * @throws {FileNotFoundException} If the file not exists or not have access to it
+     * @throws {InvalidFilePathException} If the path is not a file
+     * @throws {WrongFormatException} If file is not a JSON file or the String response is not a JSON
+     */
+    static createMetadataDetails(responseOrPath) {
         let metadataTypes;
-        if (typeof metadataFromSFDX === 'object') {
-            metadataTypes = metadataFromSFDX;
-        } else {
-            metadataTypes = Validator.validateJSONFile(metadataFromSFDX);
+        if (Utils.isArray(responseOrPath)) {
+            metadataTypes = responseOrPath;
+        } else if (Utils.isString(responseOrPath)){
+            try{
+                metadataTypes = JSON.parse(responseOrPath);
+            } catch(errorParse){
+                try {
+                    metadataTypes = Validator.validateJSONFile(responseOrPath)
+                } catch (error) {
+                    if(error.name === 'WrongFormatException')
+                        error.message = 'The provided string response is not a JSON or file path';
+                    throw error;
+                }
+            }
         }
+        if (!metadataTypes)
+            return [];
         if (metadataTypes.status === 0 && metadataTypes.result.metadataObjects)
             metadataTypes = metadataTypes.result.metadataObjects;
         const metadataDetails = [];
@@ -109,13 +136,23 @@ class Factory {
         return metadataDetails;
     }
 
-    static createMetadataTypeFromRecords(metadataTypeName, records, foldersByType, namespacePrefix, downloadAll) {
+    /**
+     * Method to create Metadata Types JSON data from the results of a query (Used to create types from Reports, Dashboards, EmailTemplates...). Used in Aura Helper Connector to process the responses
+     * @param {String} metadataTypeName Metadata Type API Name
+     * @param {Array<Object>} records List of records to create the Metadata Types
+     * @param {Object} foldersByType Object with the objects folders (email folders, document folders...) related by Metadata Type
+     * @param {String} namespacePrefix Namespace prefix from the org
+     * @param {Boolean} addAll true to add all elements in records list, false to add only your org namespace objects
+     * 
+     * @returns {MetadataType} Return a Metadata Type Object with the records data
+     */
+    static createMetadataTypeFromRecords(metadataTypeName, records, foldersByType, namespacePrefix, addAll) {
         const metadataType = new MetadataType(metadataTypeName);
         for (const record of records) {
             const folderDevName = getFolderDeveloperName(foldersByType[metadataTypeName], (record.FolderId || record.FolderName), metadataTypeName !== MetadataTypes.REPORT);
             if (folderDevName === undefined)
                 continue;
-            if (downloadAll || (!record.NamespacePrefix || record.NamespacePrefix === namespacePrefix)) {
+            if (addAll || (!record.NamespacePrefix || record.NamespacePrefix === namespacePrefix)) {
                 metadataType.addChild(folderDevName, new MetadataObject(folderDevName));
                 metadataType.getChild(folderDevName).addChild(record.DeveloperName, new MetadataItem(record.DeveloperName));
             }
@@ -123,28 +160,62 @@ class Factory {
         return metadataType;
     }
 
-    static createMetedataTypeFromResponse(response, metadataTypeName, downloadAll, namespacePrefix) {
-        if (!response)
-            return undefined;
+    /**
+     * Method to create the Metadata Types from SFDX Command. Used in Aura Helper Connector to process the responses
+     * @param {String} metadataTypeName Metadata Type API Name
+     * @param {String | Object} response String response or JSON response from SFDX command
+     * @param {String} namespacePrefix Namespace prefix from the org
+     * @param {Boolean} addAll true to add all elements in response, false to add only your org namespace objects
+     * 
+     * @returns {MetadataType} Return a Metadata Type Object with the response data
+     * 
+     * @throws {WrongFormatException} If the response is not a JSON String or JSON Object
+     */
+    static createMetedataTypeFromResponse(metadataTypeName, response, namespacePrefix, addAll) {
         let metadataType;
+        if (!response)
+            return metadataType;
+        if (Utils.isString(response)) {
+            try {
+                response = JSON.parse(response);
+            } catch (error) {
+                throw new WrongFormatException('The provided string response is not a JSON');
+            }
+        } else if (!Utils.isObject(response))
+            throw new WrongFormatException('The provided response is not a JSON String or JSON Object');
         if (response.status === 0) {
             let dataList = Utils.forceArray(response.result);
             if (dataList === undefined)
                 return undefined;
             metadataType = new MetadataType(metadataTypeName);
-            createMetadataObjectsFromArray(metadataType, dataList, downloadAll, namespacePrefix, false);
+            createMetadataObjectsFromArray(metadataType, dataList, addAll, namespacePrefix, false);
         }
         return metadataType;
     }
 
+    /**
+     * Method to create not included Metadata Types into the responses of SFDX Commands like StandardValueSet for Standard Picklist values
+     * @param {String} metadataTypeName Metadata Type API Name
+     * 
+     * @returns {MetadataType} Return the selected Metadata Type with childs data or undefined if not exists on not selected metadata types
+     */
     static createNotIncludedMetadataType(metadataTypeName) {
-        const metadataType = new MetadataType(metadataTypeName);
-        for (const element of NotIncludedMetadata[metadataTypeName].elements) {
-            metadataType.addChild(new MetadataObject(element));
+        if (NotIncludedMetadata[metadataTypeName]) {
+            const metadataType = new MetadataType(metadataTypeName);
+            for (const element of NotIncludedMetadata[metadataTypeName].elements) {
+                metadataType.addChild(new MetadataObject(element));
+            }
+            return metadataType;
         }
-        return metadataType;
+        return undefined;
     }
 
+    /**
+     * Method to create a SObject instance from the response of describe SObjects command from SFDX
+     * @param {String} strJson String JSON response
+     * 
+     * @returns {SObject} Return an instance of the SObject or undefined if cant extract the data 
+     */
     static createSObjectFromJSONSchema(strJson) {
         let isOnFields = false;
         let isOnRts = false;
@@ -278,8 +349,19 @@ class Factory {
         return sObject;
     }
 
+    /**
+     * Method to extract the SObjects data from the file system into an object with the SObject API Names in lower case as keys, and the SObject instance as value
+     * @param {String} sObjectsPath Path to the SObjects folder
+     * 
+     * @returns {Object} Return an Object with the stored SObjects data with the name in lower case as key, and the SObject instance as value
+     * 
+     * @throws {WrongDirectoryPathException} If the sObjects path is not a String or can't convert to absolute path
+     * @throws {DirectoryNotFoundException} If the directory not exists or not have access to it
+     * @throws {InvalidDirectoryPathException} If the path is not a directory
+     */
     static createSObjectsFromFileSystem(sObjectsPath) {
         const sObjects = {};
+        sObjectsPath = Validator.validateFolderPath(sObjectsPath);
         const folders = FileReader.readDirSync(sObjectsPath);
         for (const folder of folders) {
             const newObject = new SObject(folder);
@@ -347,8 +429,14 @@ class Factory {
         return sObjects;
     }
 
+    /**
+     * Method to create a Map to relate the directory name to the related Metadata Detail. Including subtypes like SObejct fields, indexses...
+     * @param {Array<MetadataDetail>} metadataDetails Metadata details list to create the Metadata Folder map
+     * 
+     * @returns {Object} Return an object with the directory name as key, and Metadata Detail as value
+     */
     static createFolderMetadataMap(metadataDetails) {
-        let folderMetadataMap = {};
+        const folderMetadataMap = {};
         for (const metadataDetail of metadataDetails) {
             if (metadataDetail.xmlName === MetadataTypes.CUSTOM_FIELD) {
                 folderMetadataMap[metadataDetail.directoryName + '/fields'] = metadataDetail;
@@ -377,9 +465,25 @@ class Factory {
         return folderMetadataMap;
     }
 
-    static createMetadataTypesFromFileSystem(folderMetadataMap, root) {
+    /**
+     * Method to create the Metadata JSON Object with the files and data from your local project.
+     * @param {Object | Array<MetadataDetail>} folderMapOrDetails Folder metadata map created with createFolderMetadataMap() method or MetadataDetails created with createMetadataDetails() method or downloaded with aura Helper Connector
+     * @param {String} root Path to the Salesforce project root
+     * 
+     * @returns {Object} Returns a Metadata JSON Object with the data from the local project
+     * 
+     * @throws {WrongDirectoryPathException} If the root path is not a String or can't convert to absolute path
+     * @throws {DirectoryNotFoundException} If the directory not exists or not have access to it
+     * @throws {InvalidDirectoryPathException} If the path is not a directory
+     */
+    static createMetadataTypesFromFileSystem(folderMapOrDetails, root) {
         let metadata = {};
-        root = PathUtils.getAbsolutePath(root);
+        let folderMetadataMap;
+        root = Validator.validateFolderPath(root);
+        if(Utils.isArray(folderMapOrDetails))
+            folderMetadataMap = MetadataFactory.createFolderMetadataMap(folderMapOrDetails);
+        else 
+            folderMetadataMap = folderMapOrDetails;
         let projectConfig = ProjectUtils.getProjectConfig(root);
         if (projectConfig === undefined) {
             projectConfig = {
@@ -456,22 +560,36 @@ class Factory {
         return metadata;
     }
 
-    static createMetadataTypesFromPackageXML(data) {
+    /**
+     * Method to create the Metadata JSON Object from a package XML file
+     * @param {String | Object} pathOrContent Path to the package file or XML String content or XML Parsed content (XMLParser)
+     * 
+     * @returns {Object} Return a Metadata JSON Object with the package data
+     * 
+     * @throws {WrongDirectoryPathException} If the path is not a String or can't convert to absolute path
+     * @throws {DirectoryNotFoundException} If the directory not exists or not have access to it
+     * @throws {InvalidDirectoryPathException} If the path is not a directory
+     * @throws {WrongDatatypeException} If the parameter is not an String or valid XML Object parsed with XMLParser
+     * @throws {WrongFormatException} If the provided data is not a correct Package XML file
+     */
+    static createMetadataTypesFromPackageXML(pathOrContent) {
         const metadataTypes = {};
-        if (!data)
+        if (!pathOrContent)
             return metadataTypes;
-        let xmlRoot = data;
-        if (typeof data === 'string') {
+        let xmlRoot = pathOrContent;
+        if (Utils.isString(pathOrContent)) {
             try {
-                xmlRoot = XMLParser.parseXML(data);
+                xmlRoot = XMLParser.parseXML(pathOrContent);
                 if (!xmlRoot)
-                    xmlRoot = XMLParser.parseXML(FileReader.readFileSync(PathUtils.getAbsolutePath(data)));
+                    xmlRoot = XMLParser.parseXML(FileReader.readFileSync(Validator.validateFilePath(pathOrContent)));
             } catch (error) {
-                throw new Error('Wrong data parameter. Expect a package file path, XML Parsed content or XML String content but receive ' + data);
+                throw new WrongDatatypeException('Wrong data parameter. Expect a package file path, XML Parsed content or XML String content but receive ' + pathOrContent);
             }
+        } else if(!Utils.isObject(pathOrContent)){
+            throw new WrongDatatypeException('Wrong data parameter. Expect a package file path, XML Parsed content or XML String content but receive ' + pathOrContent);
         }
         if (!xmlRoot.Package && !xmlRoot.prepared)
-            throw new Error('Not a valid package.xml content. Check the file format');
+            throw new WrongFormatException('Not a valid package.xml content. Check the file format');
         const preparedPackage = (xmlRoot.prepared) ? xmlRoot : preparePackageFromXML(xmlRoot);
         for (const typeName of Object.keys(preparedPackage)) {
             if (typeName !== 'version' && typeName !== 'prepared') {
@@ -484,10 +602,23 @@ class Factory {
         return metadataTypes;
     }
 
-    static createMetadataTypesFromGitDiffs(root, gitDiffs, folderMetadataMap) {
+    /**
+     * Method to create the Metadata JSON Object from the Git Diffs to able to create a Package from a git differences automatically and deploy it
+     * @param {String} root Path to the Project Root
+     * @param {Array<GitDiff>} gitDiffs List of git diffs extracted with Aura Helper Git Manager Module
+     * @param {Object | Array<MetadataDetail>} folderMapOrDetails Folder metadata map created with createFolderMetadataMap() method or MetadataDetails created with createMetadataDetails() method or downloaded with aura Helper Connector
+     * 
+     * @returns {Object} Returns a Metadata JSON Object extracted from Git diffs 
+     */
+    static createMetadataTypesFromGitDiffs(root, gitDiffs, folderMapOrDetails) {
         let metadataRootFolder = root + '/force-app/main/default';
         let metadataForDeploy = {};
         let metadataForDelete = {};
+        let folderMetadataMap;
+        if(Utils.isArray(folderMapOrDetails))
+            folderMetadataMap = MetadataFactory.createFolderMetadataMap(folderMapOrDetails);
+        else 
+            folderMetadataMap = folderMapOrDetails;
         for (const diff of gitDiffs) {
             let typeFolder = '';
             let filePath = '';
@@ -626,9 +757,29 @@ class Factory {
         }
     }
 
+    /**
+     * Method to convert a JSON String with Metadata JSON format or a Metadata JSON untyped Object to a Metadata JSON Object with MetadataType, MetadataObject and MetadataItem objects
+     * @param {String | Object} metadataTypes String or Object with Metadata JSON format to convert to typed Metadata JSON
+     * @param {Boolean} removeEmptyTypes true to remove types with no data
+     * 
+     * @returns {Object} Return a JSON Metadata Object with MetadataType, MetadataObject and MetadataItem instances insted untyped objects
+     * 
+     * @throws {WrongFilePathException} If the filePath is not a String or can't convert to absolute path
+     * @throws {FileNotFoundException} If the file not exists or not have access to it
+     * @throws {InvalidFilePathException} If the path is not a file
+     * @throws {WrongFormatException} If file is not a JSON file or not have the correct Metadata JSON format
+     */
     static deserializeMetadataTypes(metadataTypes, removeEmptyTypes) {
         if (!metadataTypes)
             return metadataTypes;
+        if(Utils.isString(metadataTypes)){
+            try{
+                metadataTypes = JSON.parse(responseOrPath);
+            } catch(error){
+                throw new WrongFormatException('The provided data must be a valid Metadata JSON Object');
+            }
+        }
+        Validator.validateMetadataJSON(metadataTypes);
         const deserialized = {};
         Object.keys(metadataTypes).forEach((key) => {
             if (metadataTypes[key]) {
@@ -655,7 +806,7 @@ class Factory {
         return deserialized;
     }
 }
-module.exports = Factory;
+module.exports = MetadataFactory;
 
 function preparePackageFromXML(pkg, apiVersion) {
     let result = {};
