@@ -142,7 +142,7 @@ class MetadataFactory {
      * @param {Array<Object>} records List of records to create the Metadata Types
      * @param {Object} foldersByType Object with the objects folders (email folders, document folders...) related by Metadata Type
      * @param {String} namespacePrefix Namespace prefix from the org
-     * @param {Boolean?} addAll true to add all elements in records list, false to add only your org namespace objects
+     * @param {Boolean} [addAll] true to add all elements in records list, false to add only your org namespace objects
      * 
      * @returns {MetadataType} Return a Metadata Type Object with the records data
      */
@@ -165,7 +165,7 @@ class MetadataFactory {
      * @param {String} metadataTypeName Metadata Type API Name
      * @param {String | Object} response String response or JSON response from SFDX command
      * @param {String} namespacePrefix Namespace prefix from the org
-     * @param {Boolean?} addAll true to add all elements in response, false to add only your org namespace objects
+     * @param {Boolean} [addAll] true to add all elements in response, false to add only your org namespace objects
      * 
      * @returns {MetadataType} Return a Metadata Type Object with the response data
      * 
@@ -760,7 +760,7 @@ class MetadataFactory {
     /**
      * Method to convert a JSON String with Metadata JSON format or a Metadata JSON untyped Object to a Metadata JSON Object with MetadataType, MetadataObject and MetadataItem objects
      * @param {String | Object} metadataTypes String or Object with Metadata JSON format to convert to typed Metadata JSON
-     * @param {Boolean?} removeEmptyTypes true to remove types with no data
+     * @param {Boolean} [removeEmptyTypes] true to remove types with no data
      * 
      * @returns {Object} Return a JSON Metadata Object with MetadataType, MetadataObject and MetadataItem instances insted untyped objects
      * 
