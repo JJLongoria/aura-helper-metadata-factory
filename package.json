@@ -27,7 +27,7 @@
     "Apex",
     "force.com",
     "DevOps",
-		"devops",
+    "devops",
     "sf-metadata-factory",
     "SF Metadata Factory",
     "SF Metadata",
@@ -41,9 +41,9 @@
     "url": "https://github.com/JJLongoria/aura-helper-metadata-factory.git"
   },
   "bugs": {
-		"url": "https://github.com/JJLongoria/aura-helper-metadata-factory/issues",
-		"email": "juanjoselongoria@gmail.com"
-	},
+    "url": "https://github.com/JJLongoria/aura-helper-metadata-factory/issues",
+    "email": "juanjoselongoria@gmail.com"
+  },
   "dependencies": {
     "@ah/core": "file:../ah-core",
     "@ah/languages": "file:../ah-languages"
