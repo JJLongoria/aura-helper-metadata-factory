@@ -578,10 +578,10 @@ class MetadataFactory {
             return metadataTypes;
         let xmlRoot = pathOrContent;
         if (Utils.isString(pathOrContent)) {
+            if(PathUtils.isURI(pathOrContent))
+                pathOrContent = Validator.validateFilePath(pathOrContent)
             try {
-                xmlRoot = XMLParser.parseXML(pathOrContent);
-                if (!xmlRoot)
-                    xmlRoot = XMLParser.parseXML(FileReader.readFileSync(Validator.validateFilePath(pathOrContent)));
+                xmlRoot = PathUtils.isURI(pathOrContent) ? XMLParser.parseXML(FileReader.readFileSync(pathOrContent)) : XMLParser.parseXML(pathOrContent);
             } catch (error) {
                 throw new WrongDatatypeException('Wrong data parameter. Expect a package file path, XML Parsed content or XML String content but receive ' + pathOrContent);
             }
@@ -590,7 +590,7 @@ class MetadataFactory {
         }
         if (!xmlRoot.Package && !xmlRoot.prepared)
             throw new WrongFormatException('Not a valid package.xml content. Check the file format');
-        const preparedPackage = (xmlRoot.prepared) ? xmlRoot : preparePackageFromXML(xmlRoot);
+        const preparedPackage = preparePackageFromXML(xmlRoot);
         for (const typeName of Object.keys(preparedPackage)) {
             if (typeName !== 'version' && typeName !== 'prepared') {
                 let metadataType = new MetadataType(typeName);
