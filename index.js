@@ -600,9 +600,9 @@ class MetadataFactory {
         if (Utils.isString(pathOrContent)) {
             try {
                 try {
-                    content = XMLParser.parseXML(FileReader.readFileSync(Validator.validateFilePath(filePathOrContent)));
+                    xmlRoot = XMLParser.parseXML(FileReader.readFileSync(Validator.validateFilePath(pathOrContent)));
                 } catch (error) {
-                    content = XMLParser.parseXML(filePathOrContent);
+                    xmlRoot = XMLParser.parseXML(pathOrContent);
                 }
             } catch (error) {
                 throw new WrongDatatypeException('Wrong data parameter. Expect a package file path, XML Parsed content or XML String content but receive ' + pathOrContent);

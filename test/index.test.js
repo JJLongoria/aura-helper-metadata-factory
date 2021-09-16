@@ -220,7 +220,7 @@ describe('Testing ./src/types/factory.js', () => {
         try {
             MetadataFactory.createMetadataTypesFromPackageXML('./test/assets/SFDXProject/manifest');
         } catch (error) {
-            expect(error.message).toMatch('Wrong data parameter. Expect a package file path, XML Parsed content or XML String content but receive ./test/assets/SFDXProject/manifest');
+            expect(error.message).toMatch('Not a valid package.xml content. Check the file format');
         }
         try {
             MetadataFactory.createMetadataTypesFromPackageXML({ root: { value: '' } });
