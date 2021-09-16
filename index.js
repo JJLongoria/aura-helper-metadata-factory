@@ -103,14 +103,14 @@ class MetadataFactory {
         let metadataTypes;
         if (Utils.isArray(responseOrPath)) {
             metadataTypes = responseOrPath;
-        } else if (Utils.isString(responseOrPath)){
-            try{
+        } else if (Utils.isString(responseOrPath)) {
+            try {
                 metadataTypes = JSON.parse(responseOrPath);
-            } catch(errorParse){
+            } catch (errorParse) {
                 try {
                     metadataTypes = Validator.validateJSONFile(responseOrPath)
                 } catch (error) {
-                    if(error.name === 'WrongFormatException')
+                    if (error.name === 'WrongFormatException')
                         error.message = 'The provided string response is not a JSON or file path';
                     throw error;
                 }
@@ -346,6 +346,11 @@ class MetadataFactory {
         }
         if (!sObject.name)
             return undefined;
+        for (const fieldKey of Object.keys(sObject.fields)) {
+            const field = sObject.fields[fieldKey];
+            if (field.type && field.type.toLowerCase() === 'hierarchy' && !objField.referenceTo.includes(sObject.name))
+                objField.referenceTo.push(sObject.name);
+        }
         return sObject;
     }
 
@@ -392,9 +397,25 @@ class MetadataFactory {
                     objField.length = !Utils.isNull(xmlField.length) ? xmlField.length : field;
                     objField.namespace = MetadataUtils.getNamespaceFromName(field);
                     objField.nillable = !Utils.isNull(xmlField.nillable) ? xmlField.nillable : true;
-                    objField.referenceTo = !Utils.isNull(xmlField.referenceTo) ? xmlField.referenceTo : objField.referenceTo;
+                    objField.referenceTo = !Utils.isNull(xmlField.referenceTo) ? Utils.forceArray(xmlField.referenceTo) : objField.referenceTo;
                     objField.relationshipName = field.endsWith('__c') ? field.substring(0, field.length - 2) + 'r' : objField.relationshipName;
                     objField.type = !Utils.isNull(xmlField.type) ? xmlField.type : objField.type;
+                    if (objField.type && objField.type.toLowerCase() === 'hierarchy' && !objField.referenceTo.includes(newObject.name))
+                        objField.referenceTo.push(newObject.name);
+                    else if (objField.type && (objField.type.toLowerCase() === 'number' || objField.type.toLowerCase() === 'currency'))
+                        objField.type = 'Decimal';
+                    else if (objField.type && objField.type.toLowerCase() === 'checkbox')
+                        objField.type = 'Boolean';
+                    else if (objField.type && objField.type.toLowerCase() === 'datetime')
+                        objField.type = 'DateTime';
+                    else if (objField.type && objField.type.toLowerCase() === 'location')
+                        objField.type = 'Location';
+                    else if (objField.type && objField.type.toLowerCase() === 'date')
+                        objField.type = 'Date';
+                    else if (objField.type && objField.type.toLowerCase() === 'lookup')
+                        objField.type = 'Lookup';
+                    else
+                        objField.type = 'String';
                     if (!Utils.isNull(xmlField.valueSet) && !Utils.isNull(xmlField.valueSet.valueSetDefinition)) {
                         const values = XMLUtils.forceArray(xmlField.valueSet.valueSetDefinition.value);
                         for (const value of values) {
@@ -406,22 +427,21 @@ class MetadataFactory {
                             objField.addPicklistValue(pickVal);
                         }
                     }
-                    newObject.addField(objField);
+
+                    if (objField && objField.name)
+                        newObject.addField(objField.name.toLowerCase(), objField);
                 }
             }
-            const objRT = new RecordType('Master', 'Master', false, true);
-            newObject.addRecordType(objRT);
             if (FileChecker.isExists(recordTypesFolder)) {
                 const recordTypes = FileReader.readDirSync(recordTypesFolder);
                 for (const recordType of recordTypes) {
                     const xmlRoot = XMLParser.parseXML(FileReader.readFileSync(recordTypesFolder + '/' + recordType));
                     const xmlRT = xmlRoot['RecordType'];
-                    const objRT = new RecordType(recordType);
-                    objRT.developerName = recordType;
-                    objRT.master = false;
-                    objRT.default = false;
+                    const objRT = new RecordType(xmlRT.fullName);
+                    objRT.developerName = xmlRT.fullName;
                     objRT.name = !Utils.isNull(xmlRT.label) ? xmlRT.label : undefined;
-                    newObject.addRecordType(objRT);
+                    if (objRT && objRT.developerName)
+                        newObject.addRecordType(objRT.developerName.toLowerCase(), objRT);
                 }
             }
             sObjects[newObject.name.toLowerCase()] = newObject;
@@ -480,9 +500,9 @@ class MetadataFactory {
         let metadata = {};
         let folderMetadataMap;
         root = Validator.validateFolderPath(root);
-        if(Utils.isArray(folderMapOrDetails))
+        if (Utils.isArray(folderMapOrDetails))
             folderMetadataMap = MetadataFactory.createFolderMetadataMap(folderMapOrDetails);
-        else 
+        else
             folderMetadataMap = folderMapOrDetails;
         let projectConfig = ProjectUtils.getProjectConfig(root);
         if (projectConfig === undefined) {
@@ -578,14 +598,16 @@ class MetadataFactory {
             return metadataTypes;
         let xmlRoot = pathOrContent;
         if (Utils.isString(pathOrContent)) {
-            if(PathUtils.isURI(pathOrContent))
-                pathOrContent = Validator.validateFilePath(pathOrContent)
             try {
-                xmlRoot = PathUtils.isURI(pathOrContent) ? XMLParser.parseXML(FileReader.readFileSync(pathOrContent)) : XMLParser.parseXML(pathOrContent);
+                try {
+                    content = XMLParser.parseXML(FileReader.readFileSync(Validator.validateFilePath(filePathOrContent)));
+                } catch (error) {
+                    content = XMLParser.parseXML(filePathOrContent);
+                }
             } catch (error) {
                 throw new WrongDatatypeException('Wrong data parameter. Expect a package file path, XML Parsed content or XML String content but receive ' + pathOrContent);
             }
-        } else if(!Utils.isObject(pathOrContent)){
+        } else if (!Utils.isObject(pathOrContent)) {
             throw new WrongDatatypeException('Wrong data parameter. Expect a package file path, XML Parsed content or XML String content but receive ' + pathOrContent);
         }
         if (!xmlRoot.Package && !xmlRoot.prepared)
@@ -615,9 +637,9 @@ class MetadataFactory {
         let metadataForDeploy = {};
         let metadataForDelete = {};
         let folderMetadataMap;
-        if(Utils.isArray(folderMapOrDetails))
+        if (Utils.isArray(folderMapOrDetails))
             folderMetadataMap = MetadataFactory.createFolderMetadataMap(folderMapOrDetails);
-        else 
+        else
             folderMetadataMap = folderMapOrDetails;
         for (const diff of gitDiffs) {
             let typeFolder = '';
@@ -772,10 +794,10 @@ class MetadataFactory {
     static deserializeMetadataTypes(metadataTypes, removeEmptyTypes) {
         if (!metadataTypes)
             return metadataTypes;
-        if(Utils.isString(metadataTypes)){
-            try{
+        if (Utils.isString(metadataTypes)) {
+            try {
                 metadataTypes = JSON.parse(responseOrPath);
-            } catch(error){
+            } catch (error) {
                 throw new WrongFormatException('The provided data must be a valid Metadata JSON Object');
             }
         }
