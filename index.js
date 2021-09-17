@@ -1,9 +1,9 @@
-const { MetadataDetail, MetadataType, MetadataObject, MetadataItem, SObject, SObjectField, PicklistValue, RecordType } = require('@ah/core').Types;
-const { WrongFormatException, WrongDatatypeException } = require('@ah/core').Exceptions;
-const { XMLParser, XMLUtils } = require('@ah/languages').XML;
-const { Utils, StrUtils, Validator, ProjectUtils, MetadataUtils } = require('@ah/core').CoreUtils;
-const { FileReader, FileChecker, PathUtils } = require('@ah/core').FileSystem;
-const { MetadataTypes, MetadataSuffixByType, NotIncludedMetadata } = require('@ah/core').Values;
+const { MetadataDetail, MetadataType, MetadataObject, MetadataItem, SObject, SObjectField, PicklistValue, RecordType } = require('@aurahelper/core').Types;
+const { WrongFormatException, WrongDatatypeException } = require('@aurahelper/core').Exceptions;
+const { XMLParser, XMLUtils } = require('@aurahelper/languages').XML;
+const { Utils, StrUtils, Validator, ProjectUtils, MetadataUtils } = require('@aurahelper/core').CoreUtils;
+const { FileReader, FileChecker, PathUtils } = require('@aurahelper/core').FileSystem;
+const { MetadataTypes, MetadataSuffixByType, NotIncludedMetadata } = require('@aurahelper/core').Values;
 const UNFILED_PUBLIC_FOLDER = 'unfiled$public';
 
 METADATA_XML_RELATION = {
@@ -843,6 +843,8 @@ function preparePackageFromXML(pkg, apiVersion) {
                 result[type.name].push(member);
             }
         }
+    } else if(pkg.prepared){
+        return pkg;
     }
     return result;
 }

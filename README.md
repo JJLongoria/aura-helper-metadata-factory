@@ -86,7 +86,7 @@ This method can throw the next exceptions:
 ### **Examples:**
 **Create Metadata Details from JSON Object**
 
-    const MetadataFactory = require('@ah/metadata-factory');
+    const MetadataFactory = require('@aurahelper/metadata-factory');
 
     // Objects to create a Metadata details
     const objects = [
@@ -120,7 +120,7 @@ This method can throw the next exceptions:
 
 **Create Metadata Details from SFDX Response**
 
-    const MetadataFactory = require('@ah/metadata-factory');
+    const MetadataFactory = require('@aurahelper/metadata-factory');
     
     const simulatedResponseObj = {
                 "status": 0,
@@ -183,7 +183,7 @@ This method can throw the next exceptions:
 
 **Create Metadata Details from response stored on file**
 
-    const MetadataFactory = require('@ah/metadata-factory');
+    const MetadataFactory = require('@aurahelper/metadata-factory');
 
     const responseFilePath = 'path/to/stored/response.json';
     const metadataDetailsFromObject = MetadataFactory.createMetadataDetails(responseFilePath);
@@ -214,7 +214,7 @@ Return a Metadata Type Object with the records data
 ### **Examples:**
 **Create Metadata JSON types from Records**
 
-    const MetadataFactory = require('@ah/metadata-factory');
+    const MetadataFactory = require('@aurahelper/metadata-factory');
     const records = [
             {
                 FolderName: 'FolderName1',
@@ -298,7 +298,7 @@ This method can throw the next exceptions:
 ### **Examples:**
 **Create Custom Object Metadata Types from Response Object**
 
-    const MetadataFactory = require('@ah/metadata-factory');
+    const MetadataFactory = require('@aurahelper/metadata-factory');
 
     const simulatedCustomObjectsResponse = {
             status: 0,
@@ -332,7 +332,7 @@ This method can throw the next exceptions:
 
 **Create Custom Object Metadata Types from Response String**
 
-    const MetadataFactory = require('@ah/metadata-factory');
+    const MetadataFactory = require('@aurahelper/metadata-factory');
 
     const simulatedCustomObjectsResponse = {
             status: 0,
@@ -380,7 +380,7 @@ Return the selected Metadata Type with childs data or undefined if not exists on
 ### **Examples:**
 **Create Standard Value Sets Metadata Type**
 
-    const MetadataFactory = require('@ah/metadata-factory');
+    const MetadataFactory = require('@aurahelper/metadata-factory');
 
     const metadataTypeAPIName = 'StandardValueSet';
     const metadataType = MetadataFactory.createNotIncludedMetadataType(metadataTypeAPIName);
@@ -402,7 +402,7 @@ Return an instance of the SObject or undefined if cant extract the data
 ### **Examples:**
 **Create SObject from String JSON Response**
 
-    const MetadataFactory = require('@ah/metadata-factory');
+    const MetadataFactory = require('@aurahelper/metadata-factory');
     
     const simulatedObjResponse = {
             "status": 0,
@@ -484,7 +484,7 @@ This method can throw the next exceptions:
 ### **Examples:**
 **Get stored SObjects data on a Salesforce Project**
 
-    const MetadataFactory = require('@ah/metadata-factory');
+    const MetadataFactory = require('@aurahelper/metadata-factory');
 
     const sObjectsFolder = './test/assets/SFDXProject/force-app/main/default/objects'
     const sObjects = MetadataFactory.createSObjectsFromFileSystem(sObjectsFolder);
@@ -509,7 +509,7 @@ Return an object with the directory name as key, and Metadata Detail as value
 ### **Examples:**
 **Create Metadata Folder Map**
 
-    const MetadataFactory = require('@ah/metadata-factory');
+    const MetadataFactory = require('@aurahelper/metadata-factory');
 
     const simulatedResponseObj = {
                 "status": 0,
@@ -588,7 +588,7 @@ This method can throw the next exceptions:
 
 ### **Examples:**
 
-    const MetadataFactory = require('@ah/metadata-factory');
+    const MetadataFactory = require('@aurahelper/metadata-factory');
 
     const simulatedResponseObj = {
                 "status": 0,
@@ -668,7 +668,7 @@ This method can throw the next exceptions:
 ### **Examples:**
 **Create Metadata JSON Object from XML String**
 
-    const MetadataFactory = require('@ah/metadata-factory');
+    const MetadataFactory = require('@aurahelper/metadata-factory');
 
     const packageStr =  '<?xml version="1.0" encoding="UTF-8"?>' +
                         '<Package xmlns="http://soap.sforce.com/2006/04/metadata">' +
@@ -695,7 +695,7 @@ This method can throw the next exceptions:
 
 **Create Metadata JSON Object from XML file**
 
-    const MetadataFactory = require('@ah/metadata-factory');
+    const MetadataFactory = require('@aurahelper/metadata-factory');
 
     const packageFile =  'path/to/package/file/package.xml';
     
@@ -708,8 +708,8 @@ This method can throw the next exceptions:
 
 **Create Metadata JSON Object from XML parsed object with XMLParser**
 
-    const MetadataFactory = require('@ah/metadata-factory');
-    const { XML } = require('@ah/languages');
+    const MetadataFactory = require('@aurahelper/metadata-factory');
+    const { XML } = require('@aurahelper/languages');
     const XMLParser = XML.XMLParser;
 
     const packageFile =  'path/to/package/file/package.xml';
@@ -740,7 +740,7 @@ Returns a Metadata JSON Object extracted from Git diffs
 
 ### **Examples:**
 
-    const MetadataFactory = require('@ah/metadata-factory');
+    const MetadataFactory = require('@aurahelper/metadata-factory');
 
     const metadataDetailsResponse = {
                 "status": 0,
@@ -858,7 +858,7 @@ This method can throw the next exceptions:
 ### **Examples:**
 **Deserialize Metadata Types from untyped object**
 
-    const MetadataFactory = require('@ah/metadata-factory');
+    const MetadataFactory = require('@aurahelper/metadata-factory');
 
     const untypedMetadataObject = {
         CustomObject: {
