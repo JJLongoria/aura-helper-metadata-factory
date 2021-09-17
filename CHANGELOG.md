@@ -1,6 +1,6 @@
 # Change Log
-
-## [1.0.0 - 2021-07-XX]
+All notable changes to this project will be documented in this file.
+## [1.0.0 - 2021-09-18]
 ### Added
 - Created class **Factory** to create Metadata JSON File from too many sources
 - Added methods to created Metadata from Git Diffs, File System or Package file

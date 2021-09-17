@@ -1,6 +1,7 @@
 {
-  "name": "@ah/metadata-factory",
+  "name": "@aurahelper/metadata-factory",
   "productName": "Aura Helper Metadata Factory",
+  "displayName": "Aura Helper Framework Metadata Factory",
   "version": "1.0.0",
   "description": "Library to create Aura Helper Metadata types from SFDX Responses, Local Project or other data sources",
   "main": "index.js",
@@ -45,8 +46,8 @@
     "email": "juanjoselongoria@gmail.com"
   },
   "dependencies": {
-    "@ah/core": "file:../ah-core",
-    "@ah/languages": "file:../ah-languages"
+    "@aurahelper/core": "^1.0.0",
+    "@aurahelper/languages": "^1.0.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.20",

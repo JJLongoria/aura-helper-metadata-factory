@@ -1,7 +1,7 @@
-const { FileReader } = require('@ah/core').FileSystem;
+const { FileReader } = require('@aurahelper/core').FileSystem;
 const MetadataFactory = require('../index');
 const fs = require('fs');
-const { XMLParser } = require('@ah/languages').XML;
+const { XMLParser } = require('@aurahelper/languages').XML;
 
 describe('Testing ./src/types/factory.js', () => {
     test('Testing createMetadataDetails()', () => {
