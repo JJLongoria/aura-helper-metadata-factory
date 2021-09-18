@@ -394,7 +394,7 @@ class MetadataFactory {
                     const objField = new SObjectField(xmlField.fullName);
                     objField.label = !Utils.isNull(xmlField.label) ? xmlField.label : field;
                     objField.custom = field.endsWith('__c');
-                    objField.length = !Utils.isNull(xmlField.length) ? xmlField.length : field;
+                    objField.length = !Utils.isNull(xmlField.length) ? xmlField.length : undefined;
                     objField.namespace = MetadataUtils.getNamespaceFromName(field);
                     objField.nillable = !Utils.isNull(xmlField.nillable) ? xmlField.nillable : true;
                     objField.referenceTo = !Utils.isNull(xmlField.referenceTo) ? Utils.forceArray(xmlField.referenceTo) : objField.referenceTo;
