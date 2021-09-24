@@ -46,7 +46,7 @@
     "email": "juanjoselongoria@gmail.com"
   },
   "dependencies": {
-    "@aurahelper/core": "^1.0.0",
+    "@aurahelper/core": "^1.0.3",
     "@aurahelper/languages": "^1.0.0"
   },
   "devDependencies": {

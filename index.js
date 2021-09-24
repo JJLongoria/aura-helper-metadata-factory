@@ -346,11 +346,8 @@ class MetadataFactory {
         }
         if (!sObject.name)
             return undefined;
-        for (const fieldKey of Object.keys(sObject.fields)) {
-            const field = sObject.fields[fieldKey];
-            if (field.type && field.type.toLowerCase() === 'hierarchy' && !objField.referenceTo.includes(sObject.name))
-                objField.referenceTo.push(sObject.name);
-        }
+        sObject.addSystemFields();
+        sObject.fixFieldTypes();
         return sObject;
     }
 
@@ -400,22 +397,6 @@ class MetadataFactory {
                     objField.referenceTo = !Utils.isNull(xmlField.referenceTo) ? Utils.forceArray(xmlField.referenceTo) : objField.referenceTo;
                     objField.relationshipName = field.endsWith('__c') ? field.substring(0, field.length - 2) + 'r' : objField.relationshipName;
                     objField.type = !Utils.isNull(xmlField.type) ? xmlField.type : objField.type;
-                    if (objField.type && objField.type.toLowerCase() === 'hierarchy' && !objField.referenceTo.includes(newObject.name))
-                        objField.referenceTo.push(newObject.name);
-                    else if (objField.type && (objField.type.toLowerCase() === 'number' || objField.type.toLowerCase() === 'currency'))
-                        objField.type = 'Decimal';
-                    else if (objField.type && objField.type.toLowerCase() === 'checkbox')
-                        objField.type = 'Boolean';
-                    else if (objField.type && objField.type.toLowerCase() === 'datetime')
-                        objField.type = 'DateTime';
-                    else if (objField.type && objField.type.toLowerCase() === 'location')
-                        objField.type = 'Location';
-                    else if (objField.type && objField.type.toLowerCase() === 'date')
-                        objField.type = 'Date';
-                    else if (objField.type && objField.type.toLowerCase() === 'lookup')
-                        objField.type = 'Lookup';
-                    else
-                        objField.type = 'String';
                     if (!Utils.isNull(xmlField.valueSet) && !Utils.isNull(xmlField.valueSet.valueSetDefinition)) {
                         const values = XMLUtils.forceArray(xmlField.valueSet.valueSetDefinition.value);
                         for (const value of values) {
@@ -444,6 +425,7 @@ class MetadataFactory {
                         newObject.addRecordType(objRT.developerName.toLowerCase(), objRT);
                 }
             }
+            newObject.addSystemFields();
             sObjects[newObject.name.toLowerCase()] = newObject;
         }
         return sObjects;
@@ -843,7 +825,7 @@ function preparePackageFromXML(pkg, apiVersion) {
                 result[type.name].push(member);
             }
         }
-    } else if(pkg.prepared){
+    } else if (pkg.prepared) {
         return pkg;
     }
     return result;
