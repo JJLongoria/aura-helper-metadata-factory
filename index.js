@@ -389,10 +389,10 @@ class MetadataFactory {
                     const xmlRoot = XMLParser.parseXML(FileReader.readFileSync(fieldsFolder + '/' + field));
                     const xmlField = xmlRoot['CustomField'];
                     const objField = new SObjectField(xmlField.fullName);
-                    objField.label = !Utils.isNull(xmlField.label) ? xmlField.label : field;
+                    objField.label = !Utils.isNull(xmlField.label) ? xmlField.label : xmlField.fullName;
                     objField.custom = field.endsWith('__c');
                     objField.length = !Utils.isNull(xmlField.length) ? xmlField.length : undefined;
-                    objField.namespace = MetadataUtils.getNamespaceFromName(field);
+                    objField.namespace = MetadataUtils.getNamespaceFromName(xmlField.fullName);
                     objField.nillable = !Utils.isNull(xmlField.nillable) ? xmlField.nillable : true;
                     objField.referenceTo = !Utils.isNull(xmlField.referenceTo) ? Utils.forceArray(xmlField.referenceTo) : objField.referenceTo;
                     objField.relationshipName = field.endsWith('__c') ? field.substring(0, field.length - 2) + 'r' : objField.relationshipName;
