@@ -290,6 +290,8 @@ class MetadataFactory {
                     sObject.setQueryable(keyValue.value);
                 if (keyValue.name === 'custom')
                     sObject.setCustom(keyValue.value === 'true');
+                if (keyValue.name === 'description')
+                    sObject.description = keyValue.value;
                 if (keyValue.name === 'customSetting')
                     sObject.setCustomSetting(keyValue.value === 'true')
             } else if (isOnReference && line.indexOf('[') === -1) {
@@ -311,6 +313,8 @@ class MetadataFactory {
                         field.setName(keyValue.value);
                     if (keyValue.name === 'label')
                         field.setLabel(keyValue.value);
+                    if (keyValue.name === 'description')
+                        field.description = keyValue.value;
                     if (keyValue.name === 'type')
                         field.setType(keyValue.value);
                     if (keyValue.name === 'length')
@@ -379,9 +383,10 @@ class MetadataFactory {
             if (FileChecker.isExists(objFile)) {
                 const xmlObj = XMLParser.parseXML(FileReader.readFileSync(objFile));
                 newObject.label = !Utils.isNull(xmlObj.label) ? xmlObj.label : newObject.label;
-                newObject.labelPlural = !Utils.isNull(xmlObj.labelPlural) ? xmlObj.label : newObject.labelPlural;
-                newObject.namespace = !Utils.isNull(xmlObj.namespace) ? xmlObj.label : newObject.namespace;
+                newObject.labelPlural = !Utils.isNull(xmlObj.labelPlural) ? xmlObj.labelPlural : newObject.labelPlural;
+                newObject.namespace = !Utils.isNull(xmlObj.namespace) ? xmlObj.namespace : newObject.namespace;
                 newObject.customSetting = !Utils.isNull(xmlObj.customSettingsType);
+                newObject.description = !Utils.isNull(xmlObj.description) ? xmlObj.description : newObject.description;
             }
             if (FileChecker.isExists(fieldsFolder)) {
                 const fields = FileReader.readDirSync(fieldsFolder);
@@ -392,10 +397,12 @@ class MetadataFactory {
                     objField.label = !Utils.isNull(xmlField.label) ? xmlField.label : xmlField.fullName;
                     objField.custom = field.endsWith('__c');
                     objField.length = !Utils.isNull(xmlField.length) ? xmlField.length : undefined;
+                    objField.description = !Utils.isNull(xmlField.description) ? xmlField.description : objField.description;
                     objField.namespace = MetadataUtils.getNamespaceFromName(xmlField.fullName);
                     objField.nillable = !Utils.isNull(xmlField.nillable) ? xmlField.nillable : true;
                     objField.referenceTo = !Utils.isNull(xmlField.referenceTo) ? Utils.forceArray(xmlField.referenceTo) : objField.referenceTo;
-                    objField.relationshipName = field.endsWith('__c') ? field.substring(0, field.length - 2) + 'r' : objField.relationshipName;
+                    objField.relationshipName = field.endsWith('Id') ? field.substring(0, field.length - 2) : objField.relationshipName;
+                    objField.relationshipName = field.endsWith('__c') ? field.substring(0, field.length - 3) + '__r' : objField.relationshipName
                     objField.type = !Utils.isNull(xmlField.type) ? xmlField.type : objField.type;
                     if (!Utils.isNull(xmlField.valueSet) && !Utils.isNull(xmlField.valueSet.valueSetDefinition)) {
                         const values = XMLUtils.forceArray(xmlField.valueSet.valueSetDefinition.value);
