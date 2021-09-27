@@ -315,6 +315,8 @@ class MetadataFactory {
                         field.setLabel(keyValue.value);
                     if (keyValue.name === 'description')
                         field.description = keyValue.value;
+                    if (keyValue.name === 'inlineHelpText')
+                        field.inlineHelpText = keyValue.value;
                     if (keyValue.name === 'type')
                         field.setType(keyValue.value);
                     if (keyValue.name === 'length')
@@ -395,14 +397,15 @@ class MetadataFactory {
                     const xmlField = xmlRoot['CustomField'];
                     const objField = new SObjectField(xmlField.fullName);
                     objField.label = !Utils.isNull(xmlField.label) ? xmlField.label : xmlField.fullName;
-                    objField.custom = field.endsWith('__c');
+                    objField.custom = xmlField.fullName.endsWith('__c');
                     objField.length = !Utils.isNull(xmlField.length) ? xmlField.length : undefined;
                     objField.description = !Utils.isNull(xmlField.description) ? xmlField.description : objField.description;
+                    objField.inlineHelpText = !Utils.isNull(xmlField.inlineHelpText) ? xmlField.inlineHelpText : objField.inlineHelpText;
                     objField.namespace = MetadataUtils.getNamespaceFromName(xmlField.fullName);
                     objField.nillable = !Utils.isNull(xmlField.nillable) ? xmlField.nillable : true;
                     objField.referenceTo = !Utils.isNull(xmlField.referenceTo) ? Utils.forceArray(xmlField.referenceTo) : objField.referenceTo;
-                    objField.relationshipName = field.endsWith('Id') ? field.substring(0, field.length - 2) : objField.relationshipName;
-                    objField.relationshipName = field.endsWith('__c') ? field.substring(0, field.length - 3) + '__r' : objField.relationshipName
+                    objField.relationshipName = xmlField.fullName.endsWith('Id') ? xmlField.fullName.substring(0, xmlField.fullName.length - 2) : objField.relationshipName;
+                    objField.relationshipName = xmlField.fullName.endsWith('__c') ? xmlField.fullName.substring(0, xmlField.fullName.length - 3) + '__r' : objField.relationshipName
                     objField.type = !Utils.isNull(xmlField.type) ? xmlField.type : objField.type;
                     if (!Utils.isNull(xmlField.valueSet) && !Utils.isNull(xmlField.valueSet.valueSetDefinition)) {
                         const values = XMLUtils.forceArray(xmlField.valueSet.valueSetDefinition.value);
