@@ -396,12 +396,12 @@ class MetadataFactory {
                     const xmlRoot = XMLParser.parseXML(FileReader.readFileSync(fieldsFolder + '/' + field));
                     const xmlField = xmlRoot['CustomField'];
                     const objField = new SObjectField(xmlField.fullName || StrUtils.replace(field, '.field-meta.xml', ''));
-                    objField.label = !Utils.isNull(xmlField.label) ? xmlField.label : xmlField.fullName;
+                    objField.label = !Utils.isNull(xmlField.label) ? xmlField.label : objField.name;
                     objField.custom = objField.name.endsWith('__c');
                     objField.length = !Utils.isNull(xmlField.length) ? xmlField.length : undefined;
                     objField.description = !Utils.isNull(xmlField.description) ? xmlField.description : objField.description;
                     objField.inlineHelpText = !Utils.isNull(xmlField.inlineHelpText) ? xmlField.inlineHelpText : objField.inlineHelpText;
-                    objField.namespace = MetadataUtils.getNamespaceFromName(xmlField.fullName);
+                    objField.namespace = MetadataUtils.getNamespaceFromName(objField.name);
                     objField.nillable = !Utils.isNull(xmlField.nillable) ? xmlField.nillable : true;
                     objField.referenceTo = !Utils.isNull(xmlField.referenceTo) ? Utils.forceArray(xmlField.referenceTo) : objField.referenceTo;
                     objField.relationshipName = objField.name.endsWith('Id') ? objField.name.substring(0, objField.name.length - 2) : objField.relationshipName;
