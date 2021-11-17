@@ -47,7 +47,7 @@ Class with several util methods to create the Aura Helper Metadata JSON from sev
 
     Method to create a Map to relate the directory name to the related Metadata Detail. Including subtypes like SObejct fields, indexses...
 
-  - [**createMetadataTypesFromFileSystem(folderMapOrDetails, root)**](#createmetadatatypesfromfilesystemfoldermapordetails-root)
+  - [**createMetadataTypesFromFileSystem(folderMapOrDetails, root)**](#createmetadatatypesfromfilesystemfoldermapordetails-root-groupglobalactions)
 
     Method to create the Metadata JSON Object with the files and data from your local project.
 
@@ -566,7 +566,7 @@ Return an object with the directory name as key, and Metadata Detail as value
     }
 
 ---
-## [**createMetadataTypesFromFileSystem(folderMapOrDetails, root)**](#createmetadatatypesfromfilesystemfoldermapordetails-root)
+## [**createMetadataTypesFromFileSystem(folderMapOrDetails, root, groupGlobalActions)**](#createmetadatatypesfromfilesystemfoldermapordetails-root-groupglobalactions)
 Method to create the Metadata JSON Object with the files and data from your local project. See [Metadata JSON Format](#metadata-file) section to understand the JSON Metadata Format.
 
 ### **Parameters:**
@@ -574,6 +574,8 @@ Method to create the Metadata JSON Object with the files and data from your loca
   - Object | Array\<MetadataDetail\>
 - **root**: Path to the Salesforce project root
   - String
+- **groupGlobalActions**: True to group global quick actions on "GlobalActions" group, false to include as object and item. Optional
+  - Boolean
 
 ### **Return:**
 Returns a Metadata JSON Object with the data from the local project

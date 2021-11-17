@@ -6,7 +6,7 @@ const { FileReader, FileChecker, PathUtils } = require('@aurahelper/core').FileS
 const { MetadataTypes, MetadataSuffixByType, NotIncludedMetadata } = require('@aurahelper/core').Values;
 const UNFILED_PUBLIC_FOLDER = 'unfiled$public';
 
-METADATA_XML_RELATION = {
+const METADATA_XML_RELATION = {
     Workflow: {
         outboundMessages: {
             fieldKey: 'fullName',
@@ -481,6 +481,7 @@ class MetadataFactory {
      * Method to create the Metadata JSON Object with the files and data from your local project.
      * @param {Object | Array<MetadataDetail>} folderMapOrDetails Folder metadata map created with createFolderMetadataMap() method or MetadataDetails created with createMetadataDetails() method or downloaded with aura Helper Connector
      * @param {String} root Path to the Salesforce project root
+     * @param {Boolean} [groupGlobalActions] True to group global quick actions on "GlobalActions" group, false to include as object and item.
      * 
      * @returns {Object} Returns a Metadata JSON Object with the data from the local project
      * 
@@ -488,7 +489,7 @@ class MetadataFactory {
      * @throws {DirectoryNotFoundException} If the directory not exists or not have access to it
      * @throws {InvalidDirectoryPathException} If the path is not a directory
      */
-    static createMetadataTypesFromFileSystem(folderMapOrDetails, root) {
+    static createMetadataTypesFromFileSystem(folderMapOrDetails, root, groupGlobalActions) {
         let metadata = {};
         let folderMetadataMap;
         root = Validator.validateFolderPath(root);
@@ -540,7 +541,7 @@ class MetadataFactory {
                     } else if (folder == 'reports') {
                         metadata[metadataType.xmlName] = getReportsMetadataFromFolder(folderPath, metadataType);
                     } else if (folder == 'quickActions') {
-                        metadata[metadataType.xmlName] = getMetadataFromFolders(folderPath, metadataType, '.');
+                        metadata[metadataType.xmlName] = getMetadataFromFolders(folderPath, metadataType, '.', (groupGlobalActions) ? 'GlobalActions' : undefined);
                     } else if (folder == 'standardValueSetTranslations') {
                         metadata[metadataType.xmlName] = getStandardValueSetTranslationMetadataFromFolder(folderPath, metadataType);
                     } else if (folder == 'lwc') {
@@ -969,7 +970,7 @@ function getMetadataFromFiles(metadataType, metadata, folderPath) {
     }
 }
 
-function getMetadataFromFolders(folderPath, type, separator) {
+function getMetadataFromFolders(folderPath, type, separator, groupName) {
     let files = FileReader.readDirSync(folderPath);
     let metadataType = new MetadataType(type.xmlName, false, folderPath, type.suffix);
     let metadataObjects = {};
@@ -978,10 +979,24 @@ function getMetadataFromFolders(folderPath, type, separator) {
         let fileParts = file.split(separator);
         let sObj = fileParts[0];
         let metadataName = fileParts[1];
-        if (!metadataObjects[sObj])
-            metadataObjects[sObj] = new MetadataObject(sObj, false, folderPath);
-        if (metadataName && metadataName.length > 0 && !metadataObjects[sObj].childs[metadataName])
-            metadataObjects[sObj].childs[metadataName] = new MetadataItem(metadataName, false, path);
+        if (type.xmlName === MetadataTypes.QUICK_ACTION) {
+            if (!metadataObjects[groupName] && StrUtils.contains(metadataName, 'quickAction-meta') && groupName)
+                metadataObjects[groupName] = new MetadataObject(groupName, false, folderPath);
+            else if(!metadataObjects[sObj])
+                metadataObjects[sObj] = new MetadataObject(sObj, false, folderPath);
+                
+            if (metadataName && metadataName.length > 0 && !StrUtils.contains(metadataName, 'quickAction-meta') && !metadataObjects[sObj].childs[metadataName])
+                metadataObjects[sObj].childs[metadataName] = new MetadataItem(metadataName, false, path);
+            else if(groupName)
+                metadataObjects[groupName].childs[sObj] = new MetadataItem(sObj, false, path);
+            else
+                metadataObjects[sObj].childs[sObj] = new MetadataItem(sObj, false, path);
+        } else {
+            if (!metadataObjects[sObj])
+                metadataObjects[sObj] = new MetadataObject(sObj, false, folderPath);
+            if (metadataName && metadataName.length > 0 && !metadataObjects[sObj].childs[metadataName])
+                metadataObjects[sObj].childs[metadataName] = new MetadataItem(metadataName, false, path);
+        }
     }
     metadataType.childs = metadataObjects;
     return metadataType;
