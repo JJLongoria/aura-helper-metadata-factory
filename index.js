@@ -643,7 +643,7 @@ class MetadataFactory {
             let fistPartBaseFolder = baseFolderSplits[0];
             let lastPartFolder = baseFolderSplits[baseFolderSplits.length - 1];
             let metadataType;
-            if (fistPartBaseFolder === 'lwc' && (fileNameWithExt === '.eslintrc.json' || fileNameWithExt === '.jsconfig.eslintrc.json'))
+            if (fistPartBaseFolder === 'lwc' && StrUtils.contains(fileNameWithExt, 'eslintrc.json'))
                 continue;
             if (fistPartBaseFolder === 'objects') {
                 metadataType = folderMetadataMap[fistPartBaseFolder + '/' + lastPartFolder];
@@ -700,7 +700,7 @@ class MetadataFactory {
                     let metadata = new MetadataType(metadataType.xmlName, true, typeFolder, metadataType.suffix);
                     let childs = getMetadataObjectsFromGitDiff(metadataType, baseFolderSplits, fileName, filePath);
                     if ((metadataType.xmlName === MetadataTypes.AURA_DEFINITION_BUNDLE && !fileNameWithExt.endsWith('.cmp') && !fileNameWithExt.endsWith('.evt') && !fileNameWithExt.endsWith('.app'))
-                        || (metadataType.xmlName === MetadataTypes.LIGHTNING_COMPONENT_BUNDLE && !fileNameWithExt.endsWith('.html'))
+                        || (metadataType.xmlName === MetadataTypes.LIGHTNING_COMPONENT_BUNDLE && !fileNameWithExt.endsWith('.js-meta.xml'))
                         || metadataType.xmlName === MetadataTypes.STATIC_RESOURCE && !fileNameWithExt.endsWith('.resource-meta.xml')) {
                         if (!metadataForDeploy[metadata.name])
                             metadataForDeploy[metadata.name] = metadata;
