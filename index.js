@@ -166,12 +166,13 @@ class MetadataFactory {
      * @param {String | Object} response String response or JSON response from SFDX command
      * @param {String} namespacePrefix Namespace prefix from the org
      * @param {Boolean} [addAll] true to add all elements in response, false to add only your org namespace objects
+     * @param {Boolean} [groupGlobalActions] True to group global quick actions on "GlobalActions" group, false to include as object and item.
      * 
      * @returns {MetadataType} Return a Metadata Type Object with the response data
      * 
      * @throws {WrongFormatException} If the response is not a JSON String or JSON Object
      */
-    static createMetedataTypeFromResponse(metadataTypeName, response, namespacePrefix, addAll) {
+    static createMetedataTypeFromResponse(metadataTypeName, response, namespacePrefix, addAll, groupGlobalActions) {
         let metadataType;
         if (!response)
             return metadataType;
@@ -188,7 +189,7 @@ class MetadataFactory {
             if (dataList === undefined)
                 return undefined;
             metadataType = new MetadataType(metadataTypeName);
-            createMetadataObjectsFromArray(metadataType, dataList, addAll, namespacePrefix, false);
+            createMetadataObjectsFromArray(metadataType, dataList, addAll, namespacePrefix, false, groupGlobalActions);
         }
         return metadataType;
     }
@@ -576,6 +577,7 @@ class MetadataFactory {
     /**
      * Method to create the Metadata JSON Object from a package XML file
      * @param {String | Object} pathOrContent Path to the package file or XML String content or XML Parsed content (XMLParser)
+     * @param {Boolean} [groupGlobalActions] True to group global quick actions on "GlobalActions" group, false to include as object and item.
      * 
      * @returns {Object} Return a Metadata JSON Object with the package data
      * 
@@ -585,7 +587,7 @@ class MetadataFactory {
      * @throws {WrongDatatypeException} If the parameter is not an String or valid XML Object parsed with XMLParser
      * @throws {WrongFormatException} If the provided data is not a correct Package XML file
      */
-    static createMetadataTypesFromPackageXML(pathOrContent) {
+    static createMetadataTypesFromPackageXML(pathOrContent, groupGlobalActions) {
         const metadataTypes = {};
         if (!pathOrContent)
             return metadataTypes;
@@ -610,7 +612,7 @@ class MetadataFactory {
             if (typeName !== 'version' && typeName !== 'prepared') {
                 let metadataType = new MetadataType(typeName);
                 metadataType.checked = preparedPackage[typeName].includes('*');
-                metadataType = createMetadataObjectsFromArray(metadataType, preparedPackage[typeName], true, undefined, true);
+                metadataType = createMetadataObjectsFromArray(metadataType, preparedPackage[typeName], true, undefined, true, groupGlobalActions);
                 metadataTypes[typeName] = metadataType;
             }
         }
@@ -622,10 +624,11 @@ class MetadataFactory {
      * @param {String} root Path to the Project Root
      * @param {Array<GitDiff>} gitDiffs List of git diffs extracted with Aura Helper Git Manager Module
      * @param {Object | Array<MetadataDetail>} folderMapOrDetails Folder metadata map created with createFolderMetadataMap() method or MetadataDetails created with createMetadataDetails() method or downloaded with aura Helper Connector
+     * @param {Boolean} [groupGlobalActions] True to group global quick actions on "GlobalActions" group, false to include as object and item.
      * 
      * @returns {Object} Returns a Metadata JSON Object extracted from Git diffs 
      */
-    static createMetadataTypesFromGitDiffs(root, gitDiffs, folderMapOrDetails) {
+    static createMetadataTypesFromGitDiffs(root, gitDiffs, folderMapOrDetails, groupGlobalActions) {
         let metadataRootFolder = root + '/force-app/main/default';
         let metadataForDeploy = {};
         let metadataForDelete = {};
@@ -677,7 +680,7 @@ class MetadataFactory {
                     }
                 } else {
                     let metadata = new MetadataType(metadataType.xmlName, true, typeFolder, metadataType.suffix);
-                    let childs = getMetadataObjectsFromGitDiff(metadataType, baseFolderSplits, fileName, filePath);
+                    let childs = getMetadataObjectsFromGitDiff(metadataType, baseFolderSplits, fileName, filePath, groupGlobalActions);
                     if (!metadataForDeploy[metadata.name])
                         metadataForDeploy[metadata.name] = metadata;
                     Object.keys(childs).forEach(function (childKey) {
@@ -699,7 +702,7 @@ class MetadataFactory {
                     }
                 } else {
                     let metadata = new MetadataType(metadataType.xmlName, true, typeFolder, metadataType.suffix);
-                    let childs = getMetadataObjectsFromGitDiff(metadataType, baseFolderSplits, fileName, filePath);
+                    let childs = getMetadataObjectsFromGitDiff(metadataType, baseFolderSplits, fileName, filePath, groupGlobalActions);
                     if ((metadataType.xmlName === MetadataTypes.AURA_DEFINITION_BUNDLE && !fileNameWithExt.endsWith('.cmp') && !fileNameWithExt.endsWith('.evt') && !fileNameWithExt.endsWith('.app'))
                         || (metadataType.xmlName === MetadataTypes.LIGHTNING_COMPONENT_BUNDLE && !fileNameWithExt.endsWith('.js-meta.xml'))
                         || metadataType.xmlName === MetadataTypes.STATIC_RESOURCE && !fileNameWithExt.endsWith('.resource-meta.xml')) {
@@ -842,7 +845,7 @@ function preparePackageFromXML(pkg, apiVersion) {
     return result;
 }
 
-function createMetadataObjectsFromArray(metadataType, dataList, downloadAll, namespacePrefix, fromPackage) {
+function createMetadataObjectsFromArray(metadataType, dataList, downloadAll, namespacePrefix, fromPackage, groupGlobalActions) {
     for (const obj of dataList) {
         let separator;
         if (metadataType.name === MetadataTypes.EMAIL_TEMPLATE || metadataType.name === MetadataTypes.DOCUMENT || metadataType.name === MetadataTypes.REPORT || metadataType.name === MetadataTypes.DASHBOARD) {
@@ -868,6 +871,12 @@ function createMetadataObjectsFromArray(metadataType, dataList, downloadAll, nam
                 if (!item) {
                     metadataType.addChild(name, new MetadataObject(name, fromPackage));
                 } else {
+                    if (type.xmlName === MetadataTypes.QUICK_ACTION) {
+                        if (name === item && groupGlobalActions)
+                            name = 'GlobalActions';
+                        else if (name === item)
+                            item = name;
+                    }
                     metadataType.addChild(name, new MetadataObject(name, fromPackage));
                     metadataType.getChild(name).addChild(item, new MetadataItem(item, fromPackage));
                 }
@@ -875,6 +884,12 @@ function createMetadataObjectsFromArray(metadataType, dataList, downloadAll, nam
                 if (!item && (!obj.namespacePrefix || obj.namespacePrefix === namespacePrefix)) {
                     metadataType.addChild(name, new MetadataObject(name, fromPackage));
                 } else if (!obj.namespacePrefix || obj.namespacePrefix === namespacePrefix) {
+                    if (type.xmlName === MetadataTypes.QUICK_ACTION) {
+                        if (name === item && groupGlobalActions)
+                            name = 'GlobalActions';
+                        else if (name === item)
+                            item = name;
+                    }
                     metadataType.addChild(name, new MetadataObject(name, fromPackage));
                     metadataType.getChild(name).addChild(item, new MetadataItem(item, fromPackage));
                 }
@@ -982,12 +997,12 @@ function getMetadataFromFolders(folderPath, type, separator, groupName) {
         if (type.xmlName === MetadataTypes.QUICK_ACTION) {
             if (!metadataObjects[groupName] && StrUtils.contains(metadataName, 'quickAction-meta') && groupName)
                 metadataObjects[groupName] = new MetadataObject(groupName, false, folderPath);
-            else if(!metadataObjects[sObj])
+            else if (!metadataObjects[sObj])
                 metadataObjects[sObj] = new MetadataObject(sObj, false, folderPath);
-                
+
             if (metadataName && metadataName.length > 0 && !StrUtils.contains(metadataName, 'quickAction-meta') && !metadataObjects[sObj].childs[metadataName])
                 metadataObjects[sObj].childs[metadataName] = new MetadataItem(metadataName, false, path);
-            else if(groupName)
+            else if (groupName)
                 metadataObjects[groupName].childs[sObj] = new MetadataItem(sObj, false, path);
             else
                 metadataObjects[sObj].childs[sObj] = new MetadataItem(sObj, false, path);
@@ -1337,14 +1352,14 @@ function analizeDiffChanges(diffChanges, metadata, metadataType, fileName, fileP
     return possibleMetadataToAdd;
 }
 
-function getMetadataObjectsFromGitDiff(metadataType, baseFolderSplits, fileName, filePath) {
-    let especialTypes = [MetadataTypes.CUSTOM_METADATA, MetadataTypes.APPROVAL_PROCESSES, MetadataTypes.DUPLICATE_RULE,
+function getMetadataObjectsFromGitDiff(metadataType, baseFolderSplits, fileName, filePath, groupGlobalActions) {
+    let specialTypes = [MetadataTypes.CUSTOM_METADATA, MetadataTypes.APPROVAL_PROCESSES, MetadataTypes.DUPLICATE_RULE,
     MetadataTypes.QUICK_ACTION, MetadataTypes.LAYOUT, MetadataTypes.AURA_DEFINITION_BUNDLE, MetadataTypes.LIGHTNING_COMPONENT_BUNDLE, MetadataTypes.ASSIGNMENT_RULES, MetadataTypes.AUTORESPONSE_RULES,
     MetadataTypes.WORKFLOW, MetadataTypes.CUSTOM_LABELS, MetadataTypes.SHARING_RULES, MetadataTypes.FLOW, MetadataTypes.CUSTOM_OBJECT_TRANSLATIONS, MetadataTypes.STATIC_RESOURCE];
     let objects = {};
     let fistPartBaseFolder = baseFolderSplits[0];
     let folderPath = PathUtils.getBasename(filePath);
-    if (baseFolderSplits.length > 1 && !especialTypes.includes(metadataType.xmlName)) {
+    if (baseFolderSplits.length > 1 && !specialTypes.includes(metadataType.xmlName)) {
         let metadataObjectFolderName = baseFolderSplits[1];
         if (fileName.indexOf('Folder-meta.xml') === -1) {
             if (metadataType.xmlName === MetadataTypes.DOCUMENT) {
@@ -1386,10 +1401,22 @@ function getMetadataObjectsFromGitDiff(metadataType, baseFolderSplits, fileName,
             else
                 objects[fileName].checked = true;
         }
-    } else if (metadataType.xmlName === MetadataTypes.CUSTOM_METADATA || metadataType.xmlName === MetadataTypes.APPROVAL_PROCESSES || metadataType.xmlName === MetadataTypes.DUPLICATE_RULE || metadataType.xmlName === MetadataTypes.QUICK_ACTION) {
+    } else if (metadataType.xmlName === MetadataTypes.CUSTOM_METADATA || metadataType.xmlName === MetadataTypes.APPROVAL_PROCESSES || metadataType.xmlName === MetadataTypes.DUPLICATE_RULE) {
         let fileNameParts = fileName.split('.');
         let sobj = fileNameParts[0].trim();
         let item = fileNameParts[1].trim();
+        if (!objects[sobj])
+            objects[sobj] = new MetadataObject(sobj, true, folderPath);
+        if (!objects[sobj].childs[item])
+            objects[sobj].childs[item] = new MetadataItem(item, true, filePath);
+    } else if (metadataType.xmlName === MetadataTypes.QUICK_ACTION) {
+        let fileNameParts = fileName.split('.');
+        let sobj = fileNameParts[0].trim();
+        let item = fileNameParts[1].trim();
+        if (sobj == item && groupGlobalActions)
+            sobj = 'GlobalActions';
+        else if(sobj == item)
+            item = sobj;
         if (!objects[sobj])
             objects[sobj] = new MetadataObject(sobj, true, folderPath);
         if (!objects[sobj].childs[item])
