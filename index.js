@@ -869,19 +869,23 @@ function createMetadataObjectsFromArray(metadataType, dataList, downloadAll, nam
             }
             if (downloadAll) {
                 if (!item) {
-                    metadataType.addChild(name, new MetadataObject(name, fromPackage));
                     if (metadataType.name === MetadataTypes.QUICK_ACTION) {
-                        if (groupGlobalActions)
-                            name = 'GlobalActions';
-                        else
+                        if (groupGlobalActions){
                             item = name;
+                            name = 'GlobalActions';
+                        } else
+                            item = name;
+                        metadataType.addChild(name, new MetadataObject(name, fromPackage));
                         metadataType.getChild(name).addChild(item, new MetadataItem(item, fromPackage));
+                    } else {
+                        metadataType.addChild(name, new MetadataObject(name, fromPackage));
                     }
                 } else {
                     if (metadataType.name === MetadataTypes.QUICK_ACTION) {
-                        if (name === item && groupGlobalActions)
+                        if (item == name && groupGlobalActions){
+                            item = name;
                             name = 'GlobalActions';
-                        else if (name === item)
+                        } else if(item == name)
                             item = name;
                     }
                     metadataType.addChild(name, new MetadataObject(name, fromPackage));
@@ -889,19 +893,23 @@ function createMetadataObjectsFromArray(metadataType, dataList, downloadAll, nam
                 }
             } else {
                 if (!item && (!obj.namespacePrefix || obj.namespacePrefix === namespacePrefix)) {
-                    metadataType.addChild(name, new MetadataObject(name, fromPackage));
                     if (metadataType.name === MetadataTypes.QUICK_ACTION) {
-                        if (groupGlobalActions)
-                            name = 'GlobalActions';
-                        else
+                        if (groupGlobalActions){
                             item = name;
+                            name = 'GlobalActions';
+                        } else
+                            item = name;
+                        metadataType.addChild(name, new MetadataObject(name, fromPackage));
                         metadataType.getChild(name).addChild(item, new MetadataItem(item, fromPackage));
+                    } else {
+                        metadataType.addChild(name, new MetadataObject(name, fromPackage));
                     }
                 } else if (!obj.namespacePrefix || obj.namespacePrefix === namespacePrefix) {
                     if (metadataType.name === MetadataTypes.QUICK_ACTION) {
-                        if (name === item && groupGlobalActions)
+                        if (item == name && groupGlobalActions){
+                            item = name;
                             name = 'GlobalActions';
-                        else if (name === item)
+                        } else if(item == name)
                             item = name;
                     }
                     metadataType.addChild(name, new MetadataObject(name, fromPackage));
