@@ -870,8 +870,15 @@ function createMetadataObjectsFromArray(metadataType, dataList, downloadAll, nam
             if (downloadAll) {
                 if (!item) {
                     metadataType.addChild(name, new MetadataObject(name, fromPackage));
+                    if (metadataType.name === MetadataTypes.QUICK_ACTION) {
+                        if (groupGlobalActions)
+                            name = 'GlobalActions';
+                        else
+                            item = name;
+                        metadataType.getChild(name).addChild(item, new MetadataItem(item, fromPackage));
+                    }
                 } else {
-                    if (type.xmlName === MetadataTypes.QUICK_ACTION) {
+                    if (metadataType.name === MetadataTypes.QUICK_ACTION) {
                         if (name === item && groupGlobalActions)
                             name = 'GlobalActions';
                         else if (name === item)
@@ -883,8 +890,15 @@ function createMetadataObjectsFromArray(metadataType, dataList, downloadAll, nam
             } else {
                 if (!item && (!obj.namespacePrefix || obj.namespacePrefix === namespacePrefix)) {
                     metadataType.addChild(name, new MetadataObject(name, fromPackage));
+                    if (metadataType.name === MetadataTypes.QUICK_ACTION) {
+                        if (groupGlobalActions)
+                            name = 'GlobalActions';
+                        else
+                            item = name;
+                        metadataType.getChild(name).addChild(item, new MetadataItem(item, fromPackage));
+                    }
                 } else if (!obj.namespacePrefix || obj.namespacePrefix === namespacePrefix) {
-                    if (type.xmlName === MetadataTypes.QUICK_ACTION) {
+                    if (metadataType.name === MetadataTypes.QUICK_ACTION) {
                         if (name === item && groupGlobalActions)
                             name = 'GlobalActions';
                         else if (name === item)
