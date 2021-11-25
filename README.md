@@ -1,4 +1,13 @@
 # **Aura Helper Metadata Factory Module**
+
+[![Version](https://img.shields.io/npm/v/@aurahelper/metadata-factory?logo=npm)](https://www.npmjs.com/package/@aurahelper/metadata-factory)
+[![Total Downloads](https://img.shields.io/npm/dt/@aurahelper/metadata-factory?logo=npm)](https://www.npmjs.com/package/@aurahelper/metadata-factory)
+[![Downloads/Month](https://img.shields.io/npm/dm/@aurahelper/metadata-factory?logo=npm)](https://www.npmjs.com/package/@aurahelper/metadata-factory)
+[![Issues](https://img.shields.io/github/issues/jjlongoria/aura-helper-metadata-factory)](https://github.com/JJLongoria/aura-helper-metadata-factory/issues)
+[![Known Vulnerabilities](https://snyk.io/test/github/JJLongoria/aura-helper-metadata-factory/badge.svg)](https://snyk.io/test/github/JJLongoria/aura-helper-metadata-factory)
+[![Code Size](https://img.shields.io/github/languages/code-size/jjlongoria/aura-helper-metadata-factory)](https://github.com/JJLongoria/aura-helper-metadata-factory)
+[![License](https://img.shields.io/github/license/jjlongoria/aura-helper-metadata-factory?logo=github)](https://github.com/JJLongoria/aura-helper-metadata-factory/blob/master/LICENSE)
+
 The Metadata Factory Module is an Util Module to Aura Helper Framework to create Metadata Details, Metadata Folder Map or Metadata JSON Object from several sources like git, package file or the file system project among others.
 
 This module support other modules like [@ah/connector](#https://github.com/JJLongoria/aura-helper-connector) among others, to download the MetadataTypes available in your org or to decribe the specified or all Metadata Types. 
