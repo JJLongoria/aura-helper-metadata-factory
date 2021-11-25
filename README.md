@@ -78,23 +78,23 @@ Method to create the MeadataDetails objects collection from SFDX describe metada
 
 ### **Parameters:**
   - **responseOrPath**: SFDX String response or JSON response or path to the file with the response data 
-    - String | Object
+    - `String` | `Object`
 
 ### **Return:**
 Array with the MetadataDetails for all metadata types received on the response
-- Array\<MetadataDetail\>
+- `Array<MetadataDetail>`
 
 ### **Throws:**
 This method can throw the next exceptions:
 
-- **WrongFilePathException**: If the path is not a String or cant convert to absolute path
-- **FileNotFoundException**: If the file not exists or not have access to it
-- **InvalidFilePathException**: If the path is not a file
-- **WrongFormatException**: If file is not a JSON file or the String response is not a JSON
+- **`WrongFilePathException`**: If the path is not a String or cant convert to absolute path
+- **`FileNotFoundException`**: If the file not exists or not have access to it
+- **`InvalidFilePathException`**: If the path is not a file
+- **`WrongFormatException`**: If file is not a JSON file or the String response is not a JSON
 
 ### **Examples:**
 **Create Metadata Details from JSON Object**
-
+```javascript
     const MetadataFactory = require('@aurahelper/metadata-factory');
 
     // Objects to create a Metadata details
@@ -126,9 +126,9 @@ This method can throw the next exceptions:
     for(const detail of metadataDetails){
         console.log(detail);
     }
-
+```
 **Create Metadata Details from SFDX Response**
-
+```javascript
     const MetadataFactory = require('@aurahelper/metadata-factory');
     
     const simulatedResponseObj = {
@@ -189,9 +189,9 @@ This method can throw the next exceptions:
     for(const detail of metadataDetailsFromStr){
         console.log(detail);
     }
-
+```
 **Create Metadata Details from response stored on file**
-
+```javascript
     const MetadataFactory = require('@aurahelper/metadata-factory');
 
     const responseFilePath = 'path/to/stored/response.json';
@@ -199,6 +199,7 @@ This method can throw the next exceptions:
     for(const detail of metadataDetailsFromStr){
         console.log(detail);
     }
+```
 ---
 
 ## [**createMetadataTypeFromRecords(metadataTypeName, records, foldersByType, namespacePrefix, addAll)**](#createmetadatatypefromrecordsmetadatatypename-records-foldersbytype-namespaceprefix-addall)
@@ -206,23 +207,23 @@ Method to create Metadata Types JSON data from the results of a query (Used to c
 
 ### **Parameters:**
   - **metadataTypeName**: Metadata Type API Name
-    - String
+    - `String`
   - **records**: List of records to create the Metadata Types
-    - Array\<Object\>
+    - `Array<Object>`
   - **foldersByType**: Object with the objects folders (email folders, document folders...) related by Metadata Type
-    - Object
+    - `Object`
   - **namespacePrefix**: Namespace prefix from the org
-    - String
+    - `String`
   - **addAll**: true to add all elements in records list, false to add only your org namespace objects
-    - Boolean
+    - `Boolean`
 
 ### **Return:**
 Return a Metadata Type Object with the records data
-- MetadataType
+- `MetadataType`
 
 ### **Examples:**
 **Create Metadata JSON types from Records**
-
+```javascript
     const MetadataFactory = require('@aurahelper/metadata-factory');
     const records = [
             {
@@ -279,7 +280,7 @@ Return a Metadata Type Object with the records data
         const metadataType = metadataTypes[typeAPIName];
         constole.log(metadataType);
     }
-
+```
 ---
 
 ## [**createMetedataTypeFromResponse(response, metadataTypeName, namespacePrefix, addAll)**](#createmetedatatypefromresponseresponse-metadatatypename-namespaceprefix-addall)
@@ -287,26 +288,26 @@ Method to create the Metadata Types from SFDX Command. Used in Aura Helper Conne
 
 ### **Parameters:**
 - **metadataTypeName**: Metadata Type API Name
-  - String
+  - `String`
 - **response**: String response or JSON response from SFDX command
-  - String | Object
+  - `String` | `Object`
 - **namespacePrefix**: Namespace prefix from the org
-  - String
+  - `String`
 - **addAll**: true to add all elements in records list, false to add only your org namespace objects
-  - Boolean
+  - `Boolean`
 
 ### **Return:**
 Return a Metadata Type Object with the response data
-- MetadataType
+- `MetadataType`
 
 ### **Throws:**
 This method can throw the next exceptions:
 
-- **WrongFormatException**: If the response is not a JSON String or JSON Object
+- **`WrongFormatException`**: If the response is not a JSON String or JSON Object
 
 ### **Examples:**
 **Create Custom Object Metadata Types from Response Object**
-
+```javascript
     const MetadataFactory = require('@aurahelper/metadata-factory');
 
     const simulatedCustomObjectsResponse = {
@@ -338,9 +339,9 @@ This method can throw the next exceptions:
     const metadataType = MetadataFactory.createMetedataTypeFromResponse(metadataTypeAPIName, simulatedCustomObjectsResponse, namespacePrefix, addAll);
 
     console.log(metadataType);
-
+```
 **Create Custom Object Metadata Types from Response String**
-
+```javascript
     const MetadataFactory = require('@aurahelper/metadata-factory');
 
     const simulatedCustomObjectsResponse = {
@@ -373,44 +374,44 @@ This method can throw the next exceptions:
     const metadataType = MetadataFactory.createMetedataTypeFromResponse(metadataTypeAPIName, strResponse, namespacePrefix, addAll);
 
     console.log(metadataType);
-
+```
 ---
 ## [**createNotIncludedMetadataType(metadataTypeName)**](#createnotincludedmetadatatypemetadatatypename)
 Method to create not included Metadata Types into the responses of SFDX Commands like StandardValueSet for Standard Picklist values
 
 ### **Parameters:**
 - **metadataTypeName**: Metadata Type API Name
-  - String
+  - `String`
 
 ### **Return:**
 Return the selected Metadata Type with childs data or undefined if not exists on not selected metadata types
-- MetadataType
+- `MetadataType`
 
 ### **Examples:**
 **Create Standard Value Sets Metadata Type**
-
+```javascript
     const MetadataFactory = require('@aurahelper/metadata-factory');
 
     const metadataTypeAPIName = 'StandardValueSet';
     const metadataType = MetadataFactory.createNotIncludedMetadataType(metadataTypeAPIName);
 
     console.log(metadataType);
-
+```
 ---
 ## [**createSObjectFromJSONSchema(strJson)**](#createsobjectfromjsonschemastrjson)
 Method to create a SObject instance from the response of describe SObjects command from SFDX
 
 ### **Parameters:**
 - **strJson**: String JSON response
-  - String
+  - `String`
 
 ### **Return:**
 Return an instance of the SObject or undefined if cant extract the data 
-- SObject
+- `SObject`
 
 ### **Examples:**
 **Create SObject from String JSON Response**
-
+```javascript
     const MetadataFactory = require('@aurahelper/metadata-factory');
     
     const simulatedObjResponse = {
@@ -470,29 +471,29 @@ Return an instance of the SObject or undefined if cant extract the data
     const SObject = MetadataFactory.createSObjectFromJSONSchema(strResponse);
 
     console.log(SObject);
-
+```
 ---
 ## [**createSObjectsFromFileSystem(sObjectsPath)**](#createsobjectsfromfilesystemsobjectspath)
 Method to extract the SObjects data from the file system into an object with the SObject API Names in lower case as keys, and the SObject instance as value
 
 ### **Parameters:**
 - **sObjectsPath**: Path to the SObjects folder
-  - String
+  - `String`
 
 ### **Return:**
 Return an Object with the stored SObjects data with the name in lower case as key, and the SObject instance as value 
-- Object
+- `Object`
 
 ### **Throws:**
 This method can throw the next exceptions:
 
-- **WrongDirectoryPathException**: If the sObjects path is not a String or can't convert to absolute path
-- **DirectoryNotFoundException**: If the directory not exists or not have access to it
-- **InvalidDirectoryPathException**: If the path is not a directory
+- **`WrongDirectoryPathException`**: If the sObjects path is not a String or can't convert to absolute path
+- **`DirectoryNotFoundException`**: If the directory not exists or not have access to it
+- **`InvalidDirectoryPathException`**: If the path is not a directory
 
 ### **Examples:**
 **Get stored SObjects data on a Salesforce Project**
-
+```javascript
     const MetadataFactory = require('@aurahelper/metadata-factory');
 
     const sObjectsFolder = './test/assets/SFDXProject/force-app/main/default/objects'
@@ -502,6 +503,7 @@ This method can throw the next exceptions:
         const sObject = sObjects[sObjKey];
         console.log(sObject);
     }
+```
 ---
 
 ## [**createFolderMetadataMap(metadataDetails)**](#createfoldermetadatamapmetadatadetails)
@@ -509,15 +511,15 @@ Method to create a Map to relate the directory name to the related Metadata Deta
 
 ### **Parameters:**
 - **metadataDetails**: Metadata details list to create the Metadata Folder map
-  - Array\<MetadataDetail\>
+  - `Array<MetadataDetail>`
 
 ### **Return:**
 Return an object with the directory name as key, and Metadata Detail as value
-- Object
+- `Object`
 
 ### **Examples:**
 **Create Metadata Folder Map**
-
+```javascript
     const MetadataFactory = require('@aurahelper/metadata-factory');
 
     const simulatedResponseObj = {
@@ -573,32 +575,32 @@ Return an object with the directory name as key, and Metadata Detail as value
         console.log(folder);
         console.log(metadataDetail);
     }
-
+```
 ---
 ## [**createMetadataTypesFromFileSystem(folderMapOrDetails, root, groupGlobalActions)**](#createmetadatatypesfromfilesystemfoldermapordetails-root-groupglobalactions)
 Method to create the Metadata JSON Object with the files and data from your local project. See [Metadata JSON Format](#metadata-file) section to understand the JSON Metadata Format.
 
 ### **Parameters:**
 - **folderMapOrDetails**: Folder metadata map created with createFolderMetadataMap() method or MetadataDetails created with createMetadataDetails() method or downloaded with aura Helper Connector Folder map
-  - Object | Array\<MetadataDetail\>
+  - `Object` | `Array<MetadataDetail>`
 - **root**: Path to the Salesforce project root
-  - String
+  - `String`
 - **groupGlobalActions**: True to group global quick actions on "GlobalActions" group, false to include as object and item. Optional
-  - Boolean
+  - `Boolean`
 
 ### **Return:**
 Returns a Metadata JSON Object with the data from the local project
-- Object
+- `Object`
 
 ### **Throws:**
 This method can throw the next exceptions:
 
-- **WrongDirectoryPathException**: If the root path is not a String or can't convert to absolute path
-- **DirectoryNotFoundException**: If the directory not exists or not have access to it
-- **InvalidDirectoryPathException**: If the path is not a directory
+- **`WrongDirectoryPathException`**: If the root path is not a String or can't convert to absolute path
+- **`DirectoryNotFoundException`**: If the directory not exists or not have access to it
+- **`InvalidDirectoryPathException`**: If the path is not a directory
 
 ### **Examples:**
-
+```javascript
     const MetadataFactory = require('@aurahelper/metadata-factory');
 
     const simulatedResponseObj = {
@@ -654,31 +656,32 @@ This method can throw the next exceptions:
         const metadataType = metadataTypesFromFileSystem[metadataTypeAPIName];
         console.log(metadataType);
     }
+```
 ---
 ## [**createMetadataTypesFromPackageXML(pathOrContent)**](#createmetadatatypesfrompackagexmlpathorcontent)
 Method to create the Metadata JSON Object from a package XML file. See [Metadata JSON Format](#metadata-file) section to understand the JSON Metadata Format.
 
 ### **Parameters:**
 - **pathOrContent**: Path to the package file or XML String content or XML Parsed content (XMLParser)
-  - String | Object
+  - `String` | `Object`
 
 
 ### **Return:**
 Return a Metadata JSON Object with the package data
-- Object
+- `Object`
 
 ### **Throws:**
 This method can throw the next exceptions:
 
-- **WrongDirectoryPathException**: If the root path is not a String or can't convert to absolute path
-- **DirectoryNotFoundException**: If the directory not exists or not have access to it
-- **InvalidDirectoryPathException**: If the path is not a directory
-- **WrongDatatypeException**: If the parameter is not an String or valid XML Object parsed with XMLParser
-- **WrongFormatException**: If the provided data is not a correct Package XML file
+- **`WrongDirectoryPathException`**: If the root path is not a String or can't convert to absolute path
+- **`DirectoryNotFoundException`**: If the directory not exists or not have access to it
+- **`InvalidDirectoryPathException`**: If the path is not a directory
+- **`WrongDatatypeException`**: If the parameter is not an String or valid XML Object parsed with XMLParser
+- **`WrongFormatException`**: If the provided data is not a correct Package XML file
 
 ### **Examples:**
 **Create Metadata JSON Object from XML String**
-
+```javascript
     const MetadataFactory = require('@aurahelper/metadata-factory');
 
     const packageStr =  '<?xml version="1.0" encoding="UTF-8"?>' +
@@ -703,9 +706,9 @@ This method can throw the next exceptions:
         const metadataType = metadataTypesFromPacakge[metadataTypeAPIName];
         console.log(metadataType);
     }
-
+```
 **Create Metadata JSON Object from XML file**
-
+```javascript
     const MetadataFactory = require('@aurahelper/metadata-factory');
 
     const packageFile =  'path/to/package/file/package.xml';
@@ -716,9 +719,9 @@ This method can throw the next exceptions:
         const metadataType = metadataTypesFromPacakge[metadataTypeAPIName];
         console.log(metadataType);
     }
-
+```
 **Create Metadata JSON Object from XML parsed object with XMLParser**
-
+```javascript
     const MetadataFactory = require('@aurahelper/metadata-factory');
     const { XML } = require('@aurahelper/languages');
     const XMLParser = XML.XMLParser;
@@ -733,24 +736,25 @@ This method can throw the next exceptions:
         const metadataType = metadataTypesFromPacakge[metadataTypeAPIName];
         console.log(metadataType);
     }
+```
 ---
 ## [**createMetadataTypesFromGitDiffs(root, gitDiffs, folderMapOrDetails)**](#createmetadatatypesfromgitdiffsroot-gitdiffs-foldermapordetails)
 Method to create the Metadata JSON Object from the Git Diffs to able to create a Package from a git differences automatically and deploy it. See [Metadata JSON Format](#metadata-file) section to understand the JSON Metadata Format.
 
 ### **Parameters:**
 - **root**: Path to the Project Root
-  - String | Object
+  - `String` | `Object`
 - **gitDiffs**: List of git diffs extracted with Aura Helper Git Manager Module
-  - Array\<GitDiff\>
+  - `Array<GitDiff>`
 - **folderMapOrDetails**: Folder metadata map created with createFolderMetadataMap() method or MetadataDetails created with createMetadataDetails() method or downloaded with aura Helper Connector
-  - Object | Array\<MetadataDetail\>
+  - `Object` | `Array<MetadataDetail>`
 
 ### **Return:**
 Returns a Metadata JSON Object extracted from Git diffs
-- Object
+- `Object`
 
 ### **Examples:**
-
+```javascript
     const MetadataFactory = require('@aurahelper/metadata-factory');
 
     const metadataDetailsResponse = {
@@ -844,31 +848,32 @@ Returns a Metadata JSON Object extracted from Git diffs
         const metadataType = metadataTypesFromGit[metadataTypeAPIName];
         console.log(metadataType);
     }
+```
 ---
 ## [**deserializeMetadataTypes(metadataTypes, removeEmptyTypes)**](#deserializemetadatatypesmetadatatypes-removeemptytypes)
 Method to convert a JSON String with Metadata JSON format or a Metadata JSON untyped Object to a Metadata JSON Object with MetadataType, MetadataObject and MetadataItem objects. See [Metadata JSON Format](#metadata-file) section to understand the JSON Metadata Format.
 
 ### **Parameters:**
 - **metadataTypes**: String or Object with Metadata JSON format to convert to typed Metadata JSON
-  - String | Object
+  - `String` | `Object`
 - **gitDiffs**: true to remove types with no data
-  - Boolean
+  - `Boolean`
 
 ### **Return:**
 Return a JSON Metadata Object with MetadataType, MetadataObject and MetadataItem instances insted untyped objects
-- Object
+- `Object`
 
 ### **Throws:**
 This method can throw the next exceptions:
 
-- **WrongFilePathException**: If the path is not a String or cant convert to absolute path
-- **FileNotFoundException**: If the file not exists or not have access to it
-- **InvalidFilePathException**: If the path is not a file
-- **WrongFormatException**: If file is not a JSON file or not have the correct Metadata JSON format
+- **`WrongFilePathException`**: If the path is not a String or cant convert to absolute path
+- **`FileNotFoundException`**: If the file not exists or not have access to it
+- **`InvalidFilePathException`**: If the path is not a file
+- **`WrongFormatException`**: If file is not a JSON file or not have the correct Metadata JSON format
 
 ### **Examples:**
 **Deserialize Metadata Types from untyped object**
-
+```javascript
     const MetadataFactory = require('@aurahelper/metadata-factory');
 
     const untypedMetadataObject = {
@@ -910,11 +915,12 @@ This method can throw the next exceptions:
         const metadataType = deserializedTypes[metadataTypeAPIName];
         console.log(metadataType);
     }
-
+```
 # [**Metadata JSON Format**](#metadata-file)
 
 The Metadata JSON Format used by Aura Helper Framework and modules have the next structure. Some fields are required and the datatypes checked to ensure the correct file structure. 
 
+```json
     {
         "MetadataAPIName": {
             "name": "MetadataAPIName",                                  // Required (String). Contains the Metadata Type API Name (like object Key)
@@ -949,10 +955,9 @@ The Metadata JSON Format used by Aura Helper Framework and modules have the next
             }
         }
     }
-
+```
 ### **Example**:
-
-***
+```json
     {
         "CustomObject": {
             "name": "CustomObject",
@@ -1019,3 +1024,4 @@ The Metadata JSON Format used by Aura Helper Framework and modules have the next
             }
         }
     }
+```
