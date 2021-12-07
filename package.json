@@ -2,11 +2,17 @@
   "name": "@aurahelper/metadata-factory",
   "productName": "Aura Helper Metadata Factory",
   "displayName": "Aura Helper Framework Metadata Factory",
-  "version": "1.0.10",
+  "version": "2.0.0",
   "description": "Library to create Aura Helper Metadata types from SFDX Responses, Local Project or other data sources",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "test": "jest --coverage"
+    "compile": "tsc -p ./ ",
+    "lint": "eslint src --ext ts",
+    "lint-fix": "eslint src --ext ts --fix",
+    "watch": "tsc -watch -p ./",
+    "test": "jest --coverage --runInBand",
+    "test-watch": "jest --coverage --runInBand --watch"
   },
   "keywords": [
     "aura-helper-framework",
@@ -46,11 +52,17 @@
     "email": "juanjoselongoria@gmail.com"
   },
   "dependencies": {
-    "@aurahelper/core": "^1.0.12",
-    "@aurahelper/languages": "^1.0.13"
+    "@aurahelper/core": "file:../ah-core",
+    "@aurahelper/languages": "file:../ah-languages"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.20",
-    "jest": "^26.6.3"
+    "@types/jest": "^27.0.3",
+    "@types/node": "^12.12.47",
+    "@typescript-eslint/eslint-plugin": "^5.4.0",
+    "@typescript-eslint/parser": "^5.4.0",
+    "eslint": "^8.3.0",
+    "jest": "^27.4.3",
+    "ts-jest": "^27.0.7",
+    "typescript": "^3.9.6"
   }
 }
