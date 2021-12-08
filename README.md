@@ -68,7 +68,7 @@ Class with several util methods to create the Aura Helper Metadata JSON from sev
 
     Method to create the Metadata JSON Object from the Git Diffs to able to create a Package from a git differences automatically and deploy it
 
-  - [**deserializeMetadataTypes(metadataTypes, removeEmptyTypes)**](#deserializemetadatatypesmetadatatypes-removeemptytypes)
+  - [**deserializeMetadataTypes(jsonDataOrJsonStr, removeEmptyTypes)**](#deserializemetadadeserializemetadatatypesjsondataorjsonstr-removeemptytypespes)
 
     Method to convert a JSON String with Metadata JSON format or a Metadata JSON untyped Object to a Metadata JSON Object with MetadataType, MetadataObject and MetadataItem objects
 
@@ -78,11 +78,11 @@ Method to create the MeadataDetails objects collection from SFDX describe metada
 
 ### **Parameters:**
   - **responseOrPath**: SFDX String response or JSON response or path to the file with the response data 
-    - `String` | `Object`
+    - `string` | `any`
 
 ### **Return:**
 Array with the MetadataDetails for all metadata types received on the response
-- `Array<MetadataDetail>`
+- `MetadataDetail[]`
 
 ### **Throws:**
 This method can throw the next exceptions:
@@ -95,7 +95,8 @@ This method can throw the next exceptions:
 ### **Examples:**
 **Create Metadata Details from JSON Object**
 ```javascript
-    const MetadataFactory = require('@aurahelper/metadata-factory');
+    import { MetadataFactory } from '@aurahelper/metadata-factory';
+    
 
     // Objects to create a Metadata details
     const objects = [
@@ -129,7 +130,7 @@ This method can throw the next exceptions:
 ```
 **Create Metadata Details from SFDX Response**
 ```javascript
-    const MetadataFactory = require('@aurahelper/metadata-factory');
+    import { MetadataFactory } from '@aurahelper/metadata-factory';
     
     const simulatedResponseObj = {
                 "status": 0,
@@ -192,7 +193,7 @@ This method can throw the next exceptions:
 ```
 **Create Metadata Details from response stored on file**
 ```javascript
-    const MetadataFactory = require('@aurahelper/metadata-factory');
+    import { MetadataFactory } from '@aurahelper/metadata-factory';
 
     const responseFilePath = 'path/to/stored/response.json';
     const metadataDetailsFromObject = MetadataFactory.createMetadataDetails(responseFilePath);
@@ -207,15 +208,15 @@ Method to create Metadata Types JSON data from the results of a query (Used to c
 
 ### **Parameters:**
   - **metadataTypeName**: Metadata Type API Name
-    - `String`
+    - `string`
   - **records**: List of records to create the Metadata Types
-    - `Array<Object>`
+    - `any[]`
   - **foldersByType**: Object with the objects folders (email folders, document folders...) related by Metadata Type
-    - `Object`
+    - `any`
   - **namespacePrefix**: Namespace prefix from the org
-    - `String`
+    - `string`
   - **addAll**: true to add all elements in records list, false to add only your org namespace objects
-    - `Boolean`
+    - `boolean`
 
 ### **Return:**
 Return a Metadata Type Object with the records data
@@ -224,7 +225,7 @@ Return a Metadata Type Object with the records data
 ### **Examples:**
 **Create Metadata JSON types from Records**
 ```javascript
-    const MetadataFactory = require('@aurahelper/metadata-factory');
+    import { MetadataFactory } from '@aurahelper/metadata-factory';
     const records = [
             {
                 FolderName: 'FolderName1',
@@ -288,17 +289,17 @@ Method to create the Metadata Types from SFDX Command. Used in Aura Helper Conne
 
 ### **Parameters:**
 - **metadataTypeName**: Metadata Type API Name
-  - `String`
+  - `string`
 - **response**: String response or JSON response from SFDX command
-  - `String` | `Object`
+  - `string` | `any`
 - **namespacePrefix**: Namespace prefix from the org
-  - `String`
+  - `string`
 - **addAll**: true to add all elements in records list, false to add only your org namespace objects
-  - `Boolean`
+  - `boolean`
 
 ### **Return:**
 Return a Metadata Type Object with the response data
-- `MetadataType`
+- `MetadataType | undefined`
 
 ### **Throws:**
 This method can throw the next exceptions:
@@ -308,7 +309,7 @@ This method can throw the next exceptions:
 ### **Examples:**
 **Create Custom Object Metadata Types from Response Object**
 ```javascript
-    const MetadataFactory = require('@aurahelper/metadata-factory');
+    import { MetadataFactory } from '@aurahelper/metadata-factory';
 
     const simulatedCustomObjectsResponse = {
             status: 0,
@@ -342,7 +343,7 @@ This method can throw the next exceptions:
 ```
 **Create Custom Object Metadata Types from Response String**
 ```javascript
-    const MetadataFactory = require('@aurahelper/metadata-factory');
+    import { MetadataFactory } from '@aurahelper/metadata-factory';
 
     const simulatedCustomObjectsResponse = {
             status: 0,
@@ -381,16 +382,16 @@ Method to create not included Metadata Types into the responses of SFDX Commands
 
 ### **Parameters:**
 - **metadataTypeName**: Metadata Type API Name
-  - `String`
+  - `string`
 
 ### **Return:**
 Return the selected Metadata Type with childs data or undefined if not exists on not selected metadata types
-- `MetadataType`
+- `MetadataType | undefined`
 
 ### **Examples:**
 **Create Standard Value Sets Metadata Type**
 ```javascript
-    const MetadataFactory = require('@aurahelper/metadata-factory');
+    import { MetadataFactory } from '@aurahelper/metadata-factory';
 
     const metadataTypeAPIName = 'StandardValueSet';
     const metadataType = MetadataFactory.createNotIncludedMetadataType(metadataTypeAPIName);
@@ -403,16 +404,16 @@ Method to create a SObject instance from the response of describe SObjects comma
 
 ### **Parameters:**
 - **strJson**: String JSON response
-  - `String`
+  - `string`
 
 ### **Return:**
 Return an instance of the SObject or undefined if cant extract the data 
-- `SObject`
+- `SObject | undefined`
 
 ### **Examples:**
 **Create SObject from String JSON Response**
 ```javascript
-    const MetadataFactory = require('@aurahelper/metadata-factory');
+    import { MetadataFactory } from '@aurahelper/metadata-factory';
     
     const simulatedObjResponse = {
             "status": 0,
@@ -478,11 +479,11 @@ Method to extract the SObjects data from the file system into an object with the
 
 ### **Parameters:**
 - **sObjectsPath**: Path to the SObjects folder
-  - `String`
+  - `string`
 
 ### **Return:**
 Return an Object with the stored SObjects data with the name in lower case as key, and the SObject instance as value 
-- `Object`
+- `{ [key: string]: SObject }`
 
 ### **Throws:**
 This method can throw the next exceptions:
@@ -494,7 +495,7 @@ This method can throw the next exceptions:
 ### **Examples:**
 **Get stored SObjects data on a Salesforce Project**
 ```javascript
-    const MetadataFactory = require('@aurahelper/metadata-factory');
+    import { MetadataFactory } from '@aurahelper/metadata-factory';
 
     const sObjectsFolder = './test/assets/SFDXProject/force-app/main/default/objects'
     const sObjects = MetadataFactory.createSObjectsFromFileSystem(sObjectsFolder);
@@ -511,16 +512,16 @@ Method to create a Map to relate the directory name to the related Metadata Deta
 
 ### **Parameters:**
 - **metadataDetails**: Metadata details list to create the Metadata Folder map
-  - `Array<MetadataDetail>`
+  - `MetadataDetail[]`
 
 ### **Return:**
 Return an object with the directory name as key, and Metadata Detail as value
-- `Object`
+- `{ [key: string]: MetadataDetail }`
 
 ### **Examples:**
 **Create Metadata Folder Map**
 ```javascript
-    const MetadataFactory = require('@aurahelper/metadata-factory');
+    import { MetadataFactory } from '@aurahelper/metadata-factory';
 
     const simulatedResponseObj = {
                 "status": 0,
@@ -582,15 +583,15 @@ Method to create the Metadata JSON Object with the files and data from your loca
 
 ### **Parameters:**
 - **folderMapOrDetails**: Folder metadata map created with createFolderMetadataMap() method or MetadataDetails created with createMetadataDetails() method or downloaded with aura Helper Connector Folder map
-  - `Object` | `Array<MetadataDetail>`
+  - `{ [key: string]: MetadataDetail }` | `MetadataDetail[]`
 - **root**: Path to the Salesforce project root
-  - `String`
+  - `string`
 - **groupGlobalActions**: True to group global quick actions on "GlobalActions" group, false to include as object and item. Optional
-  - `Boolean`
+  - `boolean`
 
 ### **Return:**
 Returns a Metadata JSON Object with the data from the local project
-- `Object`
+- `any`
 
 ### **Throws:**
 This method can throw the next exceptions:
@@ -601,7 +602,7 @@ This method can throw the next exceptions:
 
 ### **Examples:**
 ```javascript
-    const MetadataFactory = require('@aurahelper/metadata-factory');
+    import { MetadataFactory } from '@aurahelper/metadata-factory';
 
     const simulatedResponseObj = {
                 "status": 0,
@@ -663,12 +664,14 @@ Method to create the Metadata JSON Object from a package XML file. See [Metadata
 
 ### **Parameters:**
 - **pathOrContent**: Path to the package file or XML String content or XML Parsed content (XMLParser)
-  - `String` | `Object`
+  - `string` | `any`
+- **groupGlobalActions**: True to group global quick actions on "GlobalActions" group, false to include as object and item. Optional
+  - `boolean`
 
 
 ### **Return:**
 Return a Metadata JSON Object with the package data
-- `Object`
+- `{ [key: string]: MetadataType }`
 
 ### **Throws:**
 This method can throw the next exceptions:
@@ -682,7 +685,7 @@ This method can throw the next exceptions:
 ### **Examples:**
 **Create Metadata JSON Object from XML String**
 ```javascript
-    const MetadataFactory = require('@aurahelper/metadata-factory');
+    import { MetadataFactory } from '@aurahelper/metadata-factory';
 
     const packageStr =  '<?xml version="1.0" encoding="UTF-8"?>' +
                         '<Package xmlns="http://soap.sforce.com/2006/04/metadata">' +
@@ -709,7 +712,7 @@ This method can throw the next exceptions:
 ```
 **Create Metadata JSON Object from XML file**
 ```javascript
-    const MetadataFactory = require('@aurahelper/metadata-factory');
+    import { MetadataFactory } from '@aurahelper/metadata-factory';
 
     const packageFile =  'path/to/package/file/package.xml';
     
@@ -722,8 +725,8 @@ This method can throw the next exceptions:
 ```
 **Create Metadata JSON Object from XML parsed object with XMLParser**
 ```javascript
-    const MetadataFactory = require('@aurahelper/metadata-factory');
-    const { XML } = require('@aurahelper/languages');
+    import { MetadataFactory } from '@aurahelper/metadata-factory';
+    import { XML } from '@aurahelper/languages';
     const XMLParser = XML.XMLParser;
 
     const packageFile =  'path/to/package/file/package.xml';
@@ -743,19 +746,21 @@ Method to create the Metadata JSON Object from the Git Diffs to able to create a
 
 ### **Parameters:**
 - **root**: Path to the Project Root
-  - `String` | `Object`
+  - `string`
 - **gitDiffs**: List of git diffs extracted with Aura Helper Git Manager Module
-  - `Array<GitDiff>`
+  - `GitDiff[]`
 - **folderMapOrDetails**: Folder metadata map created with createFolderMetadataMap() method or MetadataDetails created with createMetadataDetails() method or downloaded with aura Helper Connector
-  - `Object` | `Array<MetadataDetail>`
+  - `{ [key: string]: MetadataDetail }` | `MetadataDetail[]`
+- **groupGlobalActions**: True to group global quick actions on "GlobalActions" group, false to include as object and item. Optional
+  - `boolean`
 
 ### **Return:**
-Returns a Metadata JSON Object extracted from Git diffs
-- `Object`
+Return an instance from TypesFromGit interface with toDeploy and toDelete extracted data from git
+- `TypesFromGit`
 
 ### **Examples:**
 ```javascript
-    const MetadataFactory = require('@aurahelper/metadata-factory');
+    import { MetadataFactory } from '@aurahelper/metadata-factory';
 
     const metadataDetailsResponse = {
                 "status": 0,
@@ -850,18 +855,18 @@ Returns a Metadata JSON Object extracted from Git diffs
     }
 ```
 ---
-## [**deserializeMetadataTypes(metadataTypes, removeEmptyTypes)**](#deserializemetadatatypesmetadatatypes-removeemptytypes)
+## [**deserializeMetadataTypes(jsonDataOrJsonStr, removeEmptyTypes)**](#deserializemetadatatypesjsondataorjsonstr-removeemptytypes)
 Method to convert a JSON String with Metadata JSON format or a Metadata JSON untyped Object to a Metadata JSON Object with MetadataType, MetadataObject and MetadataItem objects. See [Metadata JSON Format](#metadata-file) section to understand the JSON Metadata Format.
 
 ### **Parameters:**
-- **metadataTypes**: String or Object with Metadata JSON format to convert to typed Metadata JSON
-  - `String` | `Object`
+- **jsonDataOrJsonStr**: String or Object with Metadata JSON format to convert to typed Metadata JSON
+  - `string` | `any`
 - **gitDiffs**: true to remove types with no data
-  - `Boolean`
+  - `boolean`
 
 ### **Return:**
 Return a JSON Metadata Object with MetadataType, MetadataObject and MetadataItem instances insted untyped objects
-- `Object`
+- `any`
 
 ### **Throws:**
 This method can throw the next exceptions:
@@ -874,7 +879,7 @@ This method can throw the next exceptions:
 ### **Examples:**
 **Deserialize Metadata Types from untyped object**
 ```javascript
-    const MetadataFactory = require('@aurahelper/metadata-factory');
+    import { MetadataFactory } from '@aurahelper/metadata-factory';
 
     const untypedMetadataObject = {
         CustomObject: {

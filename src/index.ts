@@ -150,12 +150,12 @@ export class MetadataFactory {
      * @param {string} metadataTypeName Metadata Type API Name
      * @param {any[]} records List of records to create the Metadata Types
      * @param {any} foldersByType Object with the objects folders (email folders, document folders...) related by Metadata Type
-     * @param {string} namespacePrefix Namespace prefix from the org
+     * @param {string} [namespacePrefix] Namespace prefix from the org
      * @param {boolean} [addAll] true to add all elements in records list, false to add only your org namespace objects
      * 
      * @returns {MetadataType} Return a Metadata Type Object with the records data
      */
-    static createMetadataTypeFromRecords(metadataTypeName: string, records: any[], foldersByType: any, namespacePrefix: string, addAll?: boolean): MetadataType {
+    static createMetadataTypeFromRecords(metadataTypeName: string, records: any[], foldersByType: any, namespacePrefix?: string, addAll?: boolean): MetadataType {
         const metadataType = new MetadataType(metadataTypeName);
         for (const record of records) {
             const folderDevName = getFolderDeveloperName(foldersByType[metadataTypeName], (record.FolderId || record.FolderName), metadataTypeName !== MetadataTypes.REPORT);
