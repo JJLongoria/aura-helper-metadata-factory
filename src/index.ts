@@ -85,6 +85,48 @@ const METADATA_XML_RELATION: any = {
             fieldKey: 'fullName',
             type: MetadataTypes.CUSTOM_LABEL
         }
+    },
+    CustomObject: {
+        businessProcesses: {
+            fieldKey: 'fullName',
+            type: MetadataTypes.BUSINESS_PROCESS
+        },
+        compactLayouts: {
+            fieldKey: 'fullName',
+            type: MetadataTypes.COMPACT_LAYOUT
+        },
+        fields: {
+            fieldKey: 'fullName',
+            type: MetadataTypes.CUSTOM_FIELD
+        },
+        fieldSets: {
+            fieldKey: 'fullName',
+            type: MetadataTypes.FIELD_SET
+        },
+        indexes: {
+            fieldKey: 'fullName',
+            type: MetadataTypes.INDEX
+        },
+        listViews: {
+            fieldKey: 'fullName',
+            type: MetadataTypes.LISTVIEW
+        },
+        recordTypes: {
+            fieldKey: 'fullName',
+            type: MetadataTypes.RECORD_TYPE
+        },
+        sharingReasons: {
+            fieldKey: 'fullName',
+            type: MetadataTypes.SHARING_REASON
+        },
+        validationRules: {
+            fieldKey: 'fullName',
+            type: MetadataTypes.VALIDATION_RULE
+        },
+        webLinks: {
+            fieldKey: 'fullName',
+            type: MetadataTypes.WEBLINK
+        },
     }
 };
 
@@ -1297,62 +1339,88 @@ function getCustomObjectsMetadata(metadata: { [key: string]: MetadataType }, obj
     metadata[MetadataTypes.WEBLINK] = new MetadataType(MetadataTypes.WEBLINK, false, objectsPath, 'webLink');
     for (const objFolder of files) {
         let objPath = objectsPath + '/' + objFolder;
-        let objFilePath = objPath + '/' + objFolder + '.object-meta.xml';
-        if (FileChecker.isExists(objPath + '/fields')) {
-            let fields = new MetadataObject(objFolder, false, objPath + '/fields');
-            fields.childs = getMetadataItems(objPath + '/fields', false);
-            metadata[MetadataTypes.CUSTOM_FIELD].childs[objFolder] = fields;
-        }
-        if (FileChecker.isExists(objPath + '/indexes')) {
-            let fields = new MetadataObject(objFolder, false, objPath + '/indexes');
-            fields.childs = getMetadataItems(objPath + '/indexes', false);
-            metadata[MetadataTypes.INDEX].childs[objFolder] = fields;
-        }
-        if (FileChecker.isExists(objPath + '/sharingReasons')) {
-            let fields = new MetadataObject(objFolder, false, objPath + '/sharingReasons');
-            fields.childs = getMetadataItems(objPath + '/sharingReasons', false);
-            metadata[MetadataTypes.SHARING_REASON].childs[objFolder] = fields;
-        }
-        if (FileChecker.isExists(objPath + '/fieldSets')) {
-            let fields = new MetadataObject(objFolder, false, objPath + '/fieldSets');
-            fields.childs = getMetadataItems(objPath + '/fieldSets', false);
-            metadata[MetadataTypes.FIELD_SET].childs[objFolder] = fields;
-        }
-        if (FileChecker.isExists(objPath + '/recordTypes')) {
-            let recordTypes = new MetadataObject(objFolder, false, objPath + '/recordTypes');
-            recordTypes.childs = getMetadataItems(objPath + '/recordTypes');
-            metadata[MetadataTypes.RECORD_TYPE].childs[objFolder] = recordTypes;
-        }
-        if (FileChecker.isExists(objPath + '/listViews')) {
-            let listviews = new MetadataObject(objFolder, false, objPath + '/listViews');
-            listviews.childs = getMetadataItems(objPath + '/listViews');
-            metadata[MetadataTypes.LISTVIEW].childs[objFolder] = listviews;
-        }
-        if (FileChecker.isExists(objPath + '/businessProcesses')) {
-            let bussinesProcesses = new MetadataObject(objFolder, false, objPath + '/businessProcesses');
-            bussinesProcesses.childs = getMetadataItems(objPath + '/businessProcesses');
-            metadata[MetadataTypes.BUSINESS_PROCESS].childs[objFolder] = bussinesProcesses;
-        }
-        if (FileChecker.isExists(objPath + '/compactLayouts')) {
-            let compactLayouts = new MetadataObject(objFolder, false, objPath + '/compactLayouts');
-            compactLayouts.childs = getMetadataItems(objPath + '/compactLayouts');
-            metadata[MetadataTypes.COMPACT_LAYOUT].childs[objFolder] = compactLayouts;
-        }
-        if (FileChecker.isExists(objPath + '/validationRules')) {
-            let validationRules = new MetadataObject(objFolder, false, objPath + '/validationRules');
-            validationRules.childs = getMetadataItems(objPath + '/validationRules');
-            metadata[MetadataTypes.VALIDATION_RULE].childs[objFolder] = validationRules;
-        }
-        if (FileChecker.isExists(objPath + '/webLinks')) {
-            let weblinks = new MetadataObject(objFolder, false, objPath + '/webLinks');
-            weblinks.childs = getMetadataItems(objPath + '/webLinks');
-            metadata[MetadataTypes.WEBLINK].childs[objFolder] = weblinks;
-        }
-        if (FileChecker.isExists(objFilePath)) {
-            metadata[MetadataTypes.CUSTOM_OBJECT].childs[objFolder] = new MetadataObject(objFolder, false, objFilePath);
+        if (FileChecker.isDirectory(objPath)) {
+            let objFilePath = objPath + '/' + objFolder + '.object-meta.xml';
+            if (FileChecker.isExists(objPath + '/businessProcesses')) {
+                let bussinesProcesses = new MetadataObject(objFolder, false, objPath + '/businessProcesses');
+                bussinesProcesses.childs = getMetadataItems(objPath + '/businessProcesses');
+                metadata[MetadataTypes.BUSINESS_PROCESS].childs[objFolder] = bussinesProcesses;
+            }
+            if (FileChecker.isExists(objPath + '/compactLayouts')) {
+                let compactLayouts = new MetadataObject(objFolder, false, objPath + '/compactLayouts');
+                compactLayouts.childs = getMetadataItems(objPath + '/compactLayouts');
+                metadata[MetadataTypes.COMPACT_LAYOUT].childs[objFolder] = compactLayouts;
+            }
+            if (FileChecker.isExists(objPath + '/fields')) {
+                let fields = new MetadataObject(objFolder, false, objPath + '/fields');
+                fields.childs = getMetadataItems(objPath + '/fields', false);
+                metadata[MetadataTypes.CUSTOM_FIELD].childs[objFolder] = fields;
+            }
+            if (FileChecker.isExists(objPath + '/fieldSets')) {
+                let fieldSets = new MetadataObject(objFolder, false, objPath + '/fieldSets');
+                fieldSets.childs = getMetadataItems(objPath + '/fieldSets', false);
+                metadata[MetadataTypes.FIELD_SET].childs[objFolder] = fieldSets;
+            }
+            if (FileChecker.isExists(objPath + '/indexes')) {
+                let indexes = new MetadataObject(objFolder, false, objPath + '/indexes');
+                indexes.childs = getMetadataItems(objPath + '/indexes', false);
+                metadata[MetadataTypes.INDEX].childs[objFolder] = indexes;
+            }
+            if (FileChecker.isExists(objPath + '/listViews')) {
+                let listviews = new MetadataObject(objFolder, false, objPath + '/listViews');
+                listviews.childs = getMetadataItems(objPath + '/listViews');
+                metadata[MetadataTypes.LISTVIEW].childs[objFolder] = listviews;
+            }
+            if (FileChecker.isExists(objPath + '/recordTypes')) {
+                let recordTypes = new MetadataObject(objFolder, false, objPath + '/recordTypes');
+                recordTypes.childs = getMetadataItems(objPath + '/recordTypes');
+                metadata[MetadataTypes.RECORD_TYPE].childs[objFolder] = recordTypes;
+            }
+            if (FileChecker.isExists(objPath + '/sharingReasons')) {
+                let fields = new MetadataObject(objFolder, false, objPath + '/sharingReasons');
+                fields.childs = getMetadataItems(objPath + '/sharingReasons', false);
+                metadata[MetadataTypes.SHARING_REASON].childs[objFolder] = fields;
+            }
+            if (FileChecker.isExists(objPath + '/validationRules')) {
+                let validationRules = new MetadataObject(objFolder, false, objPath + '/validationRules');
+                validationRules.childs = getMetadataItems(objPath + '/validationRules');
+                metadata[MetadataTypes.VALIDATION_RULE].childs[objFolder] = validationRules;
+            }
+            if (FileChecker.isExists(objPath + '/webLinks')) {
+                let weblinks = new MetadataObject(objFolder, false, objPath + '/webLinks');
+                weblinks.childs = getMetadataItems(objPath + '/webLinks');
+                metadata[MetadataTypes.WEBLINK].childs[objFolder] = weblinks;
+            }
+            if (FileChecker.isExists(objFilePath)) {
+                metadata[MetadataTypes.CUSTOM_OBJECT].childs[objFolder] = new MetadataObject(objFolder, false, objFilePath);
+            }
+        } else if (FileChecker.isExists(objPath) && FileChecker.isFile(objPath)) {
+            extractDataForMetadataAPI(metadata, objFolder, objPath);
         }
     }
     return metadata;
+}
+
+function extractDataForMetadataAPI(metadata: { [key: string]: MetadataType }, filename: string, filePath: string) {
+    const xmlRoot = XMLParser.parseXML(FileReader.readFileSync(filePath));
+    if (xmlRoot[MetadataTypes.CUSTOM_OBJECT]) {
+        const objName = filename.substring(0, filename.indexOf('.'));
+        metadata[MetadataTypes.CUSTOM_OBJECT].childs[objName] = new MetadataObject(objName, false, filePath);
+        const xmlData = xmlRoot[MetadataTypes.CUSTOM_OBJECT];
+        for (const xmlFieldName of Object.keys(METADATA_XML_RELATION[MetadataTypes.CUSTOM_OBJECT])) {
+            if (!Utils.isNull(xmlData[xmlFieldName])) {
+                const xlmRelationData = METADATA_XML_RELATION[MetadataTypes.CUSTOM_OBJECT];
+                const objects = new MetadataObject(objName, false, filePath);
+                xmlData[xmlFieldName] = XMLUtils.forceArray(xmlData[xmlFieldName]);
+                for (const data of xmlData[xmlFieldName]) {
+                    objects.addChild(new MetadataItem(data[xlmRelationData.fieldKey], false, filePath));
+                }
+                if (metadata[xlmRelationData.type]) {
+                    metadata[xlmRelationData.type].childs[objName] = objects;
+                }
+            }
+        }
+    }
 }
 
 function getMetadataObjects(folderPath: string, onlyFolders?: boolean): { [key: string]: MetadataObject } | undefined {
