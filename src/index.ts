@@ -133,7 +133,7 @@ export class MetadataFactory {
         if (metadataTypes !== undefined) {
             metadataTypes = Utils.forceArray(metadataTypes);
             for (const metadata of metadataTypes) {
-                metadataDetails.push(new MetadataDetail(metadata));
+                metadataDetails.push(new MetadataDetail(metadata.xmlName, metadata.directoryName, metadata.suffix, metadata.inFolder, metadata.metaFile));
                 if (metadata.childXmlNames && metadata.childXmlNames.length > 0) {
                     for (const childXMLName of metadata.childXmlNames) {
                         let suffix = (MetadataSuffixByType[childXMLName]) ? MetadataSuffixByType[childXMLName] : metadata.suffix;
@@ -537,7 +537,7 @@ export class MetadataFactory {
      * @throws {DirectoryNotFoundException} If the directory not exists or not have access to it
      * @throws {InvalidDirectoryPathException} If the path is not a directory
      */
-    static createMetadataTypesFromFileSystem(folderMapOrDetails: { [key: string]: MetadataDetail } | MetadataDetail[], root: string, groupGlobalActions: boolean): { [key: string]: MetadataType } {
+    static createMetadataTypesFromFileSystem(folderMapOrDetails: { [key: string]: MetadataDetail } | MetadataDetail[], root: string, groupGlobalActions?: boolean): { [key: string]: MetadataType } {
         let metadata: { [key: string]: MetadataType } = {};
         let folderMetadataMap;
         root = Validator.validateFolderPath(root);
@@ -634,7 +634,7 @@ export class MetadataFactory {
      * @throws {WrongDatatypeException} If the parameter is not an string or valid XML Object parsed with XMLParser
      * @throws {WrongFormatException} If the provided data is not a correct Package XML file
      */
-    static createMetadataTypesFromPackageXML(pathOrContent: string | any, groupGlobalActions: boolean): { [key: string]: MetadataType } {
+    static createMetadataTypesFromPackageXML(pathOrContent: string | any, groupGlobalActions?: boolean): { [key: string]: MetadataType } {
         const metadataTypes: { [key: string]: MetadataType } = {};
         if (!pathOrContent) {
             return metadataTypes;
@@ -857,20 +857,19 @@ export class MetadataFactory {
                 throw new WrongFormatException('The provided data must be a valid Metadata JSON Object');
             }
         }
-        const metadataTypes: { [key: string]: MetadataType } = {};
         jsonDataOrJsonStr = Validator.validateMetadataJSON(jsonDataOrJsonStr);
         const deserialized: { [key: string]: MetadataType } = {};
-        Object.keys(metadataTypes).forEach((key) => {
-            if (metadataTypes[key]) {
-                const metadataType = new MetadataType(metadataTypes[key]);
-                if (metadataTypes[key] && metadataTypes[key].childs && Object.keys(metadataTypes[key].childs).length > 0) {
-                    Object.keys(metadataTypes[key].childs).forEach((childKey) => {
-                        if (metadataTypes[key].childs[childKey]) {
-                            metadataType.addChild(childKey, new MetadataObject(metadataTypes[key].childs[childKey]));
-                            if (metadataTypes[key].childs[childKey] && metadataTypes[key].childs[childKey].childs && Object.keys(metadataTypes[key].childs[childKey].childs).length > 0) {
-                                Object.keys(metadataTypes[key].childs[childKey].childs).forEach((grandChildKey) => {
-                                    if (metadataTypes[key].childs[childKey].childs[grandChildKey]) {
-                                        metadataType.getChild(childKey)!.addChild(grandChildKey, new MetadataItem(metadataTypes[key].childs[childKey].childs[grandChildKey]));
+        Object.keys(jsonDataOrJsonStr).forEach((key) => {
+            if (jsonDataOrJsonStr[key]) {
+                const metadataType = new MetadataType(jsonDataOrJsonStr[key]);
+                if (jsonDataOrJsonStr[key] && jsonDataOrJsonStr[key].childs && Object.keys(jsonDataOrJsonStr[key].childs).length > 0) {
+                    Object.keys(jsonDataOrJsonStr[key].childs).forEach((childKey) => {
+                        if (jsonDataOrJsonStr[key].childs[childKey]) {
+                            metadataType.addChild(childKey, new MetadataObject(jsonDataOrJsonStr[key].childs[childKey]));
+                            if (jsonDataOrJsonStr[key].childs[childKey] && jsonDataOrJsonStr[key].childs[childKey].childs && Object.keys(jsonDataOrJsonStr[key].childs[childKey].childs).length > 0) {
+                                Object.keys(jsonDataOrJsonStr[key].childs[childKey].childs).forEach((grandChildKey) => {
+                                    if (jsonDataOrJsonStr[key].childs[childKey].childs[grandChildKey]) {
+                                        metadataType.getChild(childKey)!.addChild(grandChildKey, new MetadataItem(jsonDataOrJsonStr[key].childs[childKey].childs[grandChildKey]));
                                     }
                                 });
                             }
