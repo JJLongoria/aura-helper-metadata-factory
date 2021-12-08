@@ -236,6 +236,8 @@ describe('Testing ./src/types/factory.js', () => {
         expect(result['CustomObject'].name).toEqual('CustomObject');
         result = MetadataFactory.createMetadataTypesFromFileSystem(metadataDetails, './src/test/assets/SFDXProject');
         expect(result['CustomObject'].name).toEqual('CustomObject');
+        result = MetadataFactory.createMetadataTypesFromFileSystem(folderMetadataMap, './src/test/assets/MDAPIProject');
+        expect(result['CustomObject'].name).toEqual('CustomObject');
         result = MetadataFactory.createMetadataTypesFromFileSystem(folderMetadataMap, './src/test/assets');
         expect(result).toEqual({});
     });
