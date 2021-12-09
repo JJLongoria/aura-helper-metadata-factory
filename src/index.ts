@@ -224,7 +224,7 @@ export class MetadataFactory {
      * 
      * @throws {WrongFormatException} If the response is not a JSON string or JSON Object
      */
-    static createMetedataTypeFromResponse(metadataTypeName: string, response: string | any, namespacePrefix: string, addAll?: boolean, groupGlobalActions?: boolean): MetadataType | undefined {
+    static createMetedataTypeFromResponse(metadataTypeName: string, response: string | any, namespacePrefix?: string, addAll?: boolean, groupGlobalActions?: boolean): MetadataType | undefined {
         let metadataType;
         if (!response) {
             return metadataType;
@@ -903,15 +903,15 @@ export class MetadataFactory {
         const deserialized: { [key: string]: MetadataType } = {};
         Object.keys(jsonDataOrJsonStr).forEach((key) => {
             if (jsonDataOrJsonStr[key]) {
-                const metadataType = new MetadataType(jsonDataOrJsonStr[key]);
+                const metadataType = new MetadataType(jsonDataOrJsonStr[key].name, jsonDataOrJsonStr[key].checked, jsonDataOrJsonStr[key].path, jsonDataOrJsonStr[key].suffix);
                 if (jsonDataOrJsonStr[key] && jsonDataOrJsonStr[key].childs && Object.keys(jsonDataOrJsonStr[key].childs).length > 0) {
                     Object.keys(jsonDataOrJsonStr[key].childs).forEach((childKey) => {
                         if (jsonDataOrJsonStr[key].childs[childKey]) {
-                            metadataType.addChild(childKey, new MetadataObject(jsonDataOrJsonStr[key].childs[childKey]));
+                            metadataType.addChild(childKey, new MetadataObject(jsonDataOrJsonStr[key].childs[childKey].name, jsonDataOrJsonStr[key].childs[childKey].checked, jsonDataOrJsonStr[key].childs[childKey].path));
                             if (jsonDataOrJsonStr[key].childs[childKey] && jsonDataOrJsonStr[key].childs[childKey].childs && Object.keys(jsonDataOrJsonStr[key].childs[childKey].childs).length > 0) {
                                 Object.keys(jsonDataOrJsonStr[key].childs[childKey].childs).forEach((grandChildKey) => {
                                     if (jsonDataOrJsonStr[key].childs[childKey].childs[grandChildKey]) {
-                                        metadataType.getChild(childKey)!.addChild(grandChildKey, new MetadataItem(jsonDataOrJsonStr[key].childs[childKey].childs[grandChildKey]));
+                                        metadataType.getChild(childKey)!.addChild(grandChildKey, new MetadataItem(jsonDataOrJsonStr[key].childs[childKey].childs[grandChildKey].name, jsonDataOrJsonStr[key].childs[childKey].childs[grandChildKey].checked, jsonDataOrJsonStr[key].childs[childKey].childs[grandChildKey].path));
                                     }
                                 });
                             }
