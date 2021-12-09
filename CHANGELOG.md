@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Changed to Typescript
 - Added support to API 53.0
+- Added support to Metadata API format
 
 ## [1.0.0 - 2021-09-18]
 ### Added
