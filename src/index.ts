@@ -235,11 +235,11 @@ export class MetadataFactory {
             } catch (error) {
                 throw new WrongFormatException('The provided string response is not a JSON');
             }
-        } else if (!Utils.isObject(response)) {
-            throw new WrongFormatException('The provided response is not a JSON string or JSON Object');
+        } else if (!Utils.isObject(response) && !Utils.isArray(response)) {
+            throw new WrongFormatException('The provided response is not a JSON string, JSON Object or JSON array');
         }
-        if (response.status === 0) {
-            let dataList = Utils.forceArray(response.result);
+        if (Array.isArray(response) || response.status === 0 || response.fullName) {
+            let dataList = (response.status === 0) ? Utils.forceArray(response.result) : Utils.forceArray(response);
             if (dataList === undefined) {
                 return undefined;
             }
@@ -978,10 +978,15 @@ function createMetadataObjectsFromArray(metadataType: MetadataType, dataList: an
                         } else {
                             item = name;
                         }
-                        metadataType.addChild(name, new MetadataObject(name, fromPackage));
-                        metadataType.getChild(name)!.addChild(item, new MetadataItem(item, fromPackage));
+                        const folder = obj.fileName ? PathUtils.getDirname(obj.fileName) : undefined;
+                        metadataType.addChild(name, new MetadataObject(name, fromPackage, folder));
+                        const mtItem = new MetadataItem(item, fromPackage, obj.fileName);
+                        mtItem.id = obj.id;
+                        metadataType.getChild(name)!.addChild(item, mtItem);
                     } else {
-                        metadataType.addChild(name, new MetadataObject(name, fromPackage));
+                        const mtObj = new MetadataObject(name, fromPackage, obj.fileName);
+                        mtObj.id = obj.id;
+                        metadataType.addChild(name, mtObj);
                     }
                 } else {
                     if (metadataType.name === MetadataTypes.QUICK_ACTION) {
@@ -992,8 +997,9 @@ function createMetadataObjectsFromArray(metadataType: MetadataType, dataList: an
                             item = name;
                         }
                     }
-                    metadataType.addChild(name, new MetadataObject(name, fromPackage));
-                    metadataType.getChild(name)!.addChild(item, new MetadataItem(item, fromPackage));
+                    const folder = obj.fileName ? PathUtils.getDirname(obj.fileName) : undefined;
+                    metadataType.addChild(name, new MetadataObject(name, fromPackage, folder));
+                    metadataType.getChild(name)!.addChild(item, new MetadataItem(item, fromPackage, obj.fileName));
                 }
             } else {
                 if (!item && (!obj.namespacePrefix || obj.namespacePrefix === namespacePrefix)) {
@@ -1004,10 +1010,15 @@ function createMetadataObjectsFromArray(metadataType: MetadataType, dataList: an
                         } else {
                             item = name;
                         }
-                        metadataType.addChild(name, new MetadataObject(name, fromPackage));
-                        metadataType.getChild(name)!.addChild(item, new MetadataItem(item, fromPackage));
+                        const folder = obj.fileName ? PathUtils.getDirname(obj.fileName) : undefined;
+                        metadataType.addChild(name, new MetadataObject(name, fromPackage, folder));
+                        const mtItem = new MetadataItem(item, fromPackage, obj.fileName);
+                        mtItem.id = obj.id;
+                        metadataType.getChild(name)!.addChild(item, mtItem);
                     } else {
-                        metadataType.addChild(name, new MetadataObject(name, fromPackage));
+                        const mtObj = new MetadataObject(name, fromPackage, obj.fileName);
+                        mtObj.id = obj.id;
+                        metadataType.addChild(name, mtObj);
                     }
                 } else if (!obj.namespacePrefix || obj.namespacePrefix === namespacePrefix) {
                     if (metadataType.name === MetadataTypes.QUICK_ACTION) {
@@ -1018,8 +1029,11 @@ function createMetadataObjectsFromArray(metadataType: MetadataType, dataList: an
                             item = name;
                         }
                     }
-                    metadataType.addChild(name, new MetadataObject(name, fromPackage));
-                    metadataType.getChild(name)!.addChild(item, new MetadataItem(item, fromPackage));
+                    const folder = obj.fileName ? PathUtils.getDirname(obj.fileName) : undefined;
+                    metadataType.addChild(name, new MetadataObject(name, fromPackage, folder));
+                    const mtItem = new MetadataItem(item, fromPackage, obj.fileName);
+                    mtItem.id = obj.id;
+                    metadataType.getChild(name)!.addChild(item, mtItem);
                 }
             }
         }

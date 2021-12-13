@@ -52,8 +52,8 @@
     "email": "juanjoselongoria@gmail.com"
   },
   "dependencies": {
-    "@aurahelper/core": "file:../ah-core",
-    "@aurahelper/languages": "file:../ah-languages"
+    "@aurahelper/core": "^2.0.0",
+    "@aurahelper/languages": "^2.0.0"
   },
   "devDependencies": {
     "@types/jest": "^27.0.3",
