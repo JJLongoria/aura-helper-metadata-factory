@@ -1,4 +1,4 @@
-import { CoreUtils, FileChecker, FileReader, GitDiff, MetadataDetail, MetadataItem, MetadataObject, MetadataSuffixByType, MetadataType, MetadataTypes, NotIncludedMetadata, PathUtils, PicklistValue, ProjectConfig, RecordType, SObject, SObjectField, TypesFromGit, WrongDatatypeException, WrongFormatException } from '@aurahelper/core';
+import { CoreUtils, FileChecker, FileReader, GitDiff, MetadataDetail, MetadataItem, MetadataObject, MetadataSuffixByType, MetadataSuffixByTypeDef, MetadataType, MetadataTypes, NotIncludedMetadata, NotIncludedMetadataDef, PathUtils, PicklistValue, ProjectConfig, RecordType, SObject, SObjectField, TypesFromGit, WrongDatatypeException, WrongFormatException } from '@aurahelper/core';
 import { XML } from '@aurahelper/languages';
 
 const XMLUtils = XML.XMLUtils;
@@ -178,7 +178,7 @@ export class MetadataFactory {
                 metadataDetails.push(new MetadataDetail(metadata.xmlName, metadata.directoryName, metadata.suffix, metadata.inFolder, metadata.metaFile));
                 if (metadata.childXmlNames && metadata.childXmlNames.length > 0) {
                     for (const childXMLName of metadata.childXmlNames) {
-                        let suffix = (MetadataSuffixByType[childXMLName]) ? MetadataSuffixByType[childXMLName] : metadata.suffix;
+                        let suffix = (MetadataSuffixByType[childXMLName as keyof MetadataSuffixByTypeDef]) ? MetadataSuffixByType[childXMLName as keyof MetadataSuffixByTypeDef] : metadata.suffix;
                         metadataDetails.push(new MetadataDetail(childXMLName, metadata.directoryName, suffix, metadata.inFolder, metadata.metaFile));
                     }
                 }
@@ -256,9 +256,9 @@ export class MetadataFactory {
      * @returns {MetadataType | undefined} Return the selected Metadata Type with childs data or undefined if not exists on not selected metadata types
      */
     static createNotIncludedMetadataType(metadataTypeName: string): MetadataType | undefined {
-        if (NotIncludedMetadata[metadataTypeName]) {
+        if (NotIncludedMetadata[metadataTypeName as keyof NotIncludedMetadataDef]) {
             const metadataType = new MetadataType(metadataTypeName);
-            for (const element of NotIncludedMetadata[metadataTypeName].elements) {
+            for (const element of NotIncludedMetadata[metadataTypeName as keyof NotIncludedMetadataDef].elements) {
                 metadataType.addChild(new MetadataObject(element));
             }
             return metadataType;
@@ -470,63 +470,67 @@ export class MetadataFactory {
             const objFile = sObjectsPath + '/' + folder + '/' + folder + '.object-meta.xml';
             const fieldsFolder = sObjectsPath + '/' + folder + '/fields';
             const recordTypesFolder = sObjectsPath + '/' + folder + '/recordTypes';
-            if (FileChecker.isExists(objFile)) {
-                const xmlObj = XMLParser.parseXML(FileReader.readFileSync(objFile));
-                newObject.label = !Utils.isNull(xmlObj.label) ? xmlObj.label : newObject.label;
-                newObject.labelPlural = !Utils.isNull(xmlObj.labelPlural) ? xmlObj.labelPlural : newObject.labelPlural;
-                newObject.namespace = !Utils.isNull(xmlObj.namespace) ? xmlObj.namespace : newObject.namespace;
-                newObject.customSetting = !Utils.isNull(xmlObj.customSettingsType);
-                newObject.description = !Utils.isNull(xmlObj.description) ? xmlObj.description : newObject.description;
-            }
-            if (FileChecker.isExists(fieldsFolder)) {
-                const fields = FileReader.readDirSync(fieldsFolder);
-                for (const field of fields) {
-                    const xmlRoot = XMLParser.parseXML(FileReader.readFileSync(fieldsFolder + '/' + field));
-                    const xmlField = xmlRoot['CustomField'];
-                    const objField = new SObjectField(xmlField.fullName || StrUtils.replace(field, '.field-meta.xml', ''));
-                    objField.label = !Utils.isNull(xmlField.label) ? xmlField.label : objField.name;
-                    objField.custom = objField.name.endsWith('__c');
-                    objField.length = !Utils.isNull(xmlField.length) ? xmlField.length : undefined;
-                    objField.description = !Utils.isNull(xmlField.description) ? xmlField.description : objField.description;
-                    objField.inlineHelpText = !Utils.isNull(xmlField.inlineHelpText) ? xmlField.inlineHelpText : objField.inlineHelpText;
-                    objField.namespace = MetadataUtils.getNamespaceFromName(objField.name);
-                    objField.nillable = !Utils.isNull(xmlField.nillable) ? xmlField.nillable : true;
-                    objField.referenceTo = !Utils.isNull(xmlField.referenceTo) ? Utils.forceArray(xmlField.referenceTo) : objField.referenceTo;
-                    objField.relationshipName = objField.name.endsWith('Id') ? objField.name.substring(0, objField.name.length - 2) : objField.relationshipName;
-                    objField.relationshipName = objField.name.endsWith('__c') ? objField.name.substring(0, objField.name.length - 3) + '__r' : objField.relationshipName;
-                    objField.type = !Utils.isNull(xmlField.type) ? xmlField.type : objField.type;
-                    if (!Utils.isNull(xmlField.valueSet) && !Utils.isNull(xmlField.valueSet.valueSetDefinition)) {
-                        const values = XMLUtils.forceArray(xmlField.valueSet.valueSetDefinition.value);
-                        for (const value of values) {
-                            const pickVal = new PicklistValue();
-                            pickVal.active = !Utils.isNull(value.isActive) ? value.isActive : true;
-                            pickVal.defaultValue = !Utils.isNull(value.default) ? value.default : false;
-                            pickVal.value = !Utils.isNull(value.fullName) ? value.fullName : undefined;
-                            pickVal.label = !Utils.isNull(value.label) ? value.label : undefined;
-                            objField.addPicklistValue(pickVal);
+            try {
+                if (FileChecker.isExists(objFile)) {
+                    const xmlObj = XMLParser.parseXML(FileReader.readFileSync(objFile));
+                    newObject.label = !Utils.isNull(xmlObj.label) ? xmlObj.label : newObject.label;
+                    newObject.labelPlural = !Utils.isNull(xmlObj.labelPlural) ? xmlObj.labelPlural : newObject.labelPlural;
+                    newObject.namespace = !Utils.isNull(xmlObj.namespace) ? xmlObj.namespace : newObject.namespace;
+                    newObject.customSetting = !Utils.isNull(xmlObj.customSettingsType);
+                    newObject.description = !Utils.isNull(xmlObj.description) ? xmlObj.description : newObject.description;
+                }
+                if (FileChecker.isExists(fieldsFolder)) {
+                    const fields = FileReader.readDirSync(fieldsFolder);
+                    for (const field of fields) {
+                        const xmlRoot = XMLParser.parseXML(FileReader.readFileSync(fieldsFolder + '/' + field));
+                        const xmlField = xmlRoot['CustomField'];
+                        const objField = new SObjectField(xmlField.fullName || StrUtils.replace(field, '.field-meta.xml', ''));
+                        objField.label = !Utils.isNull(xmlField.label) ? xmlField.label : objField.name;
+                        objField.custom = objField.name.endsWith('__c');
+                        objField.length = !Utils.isNull(xmlField.length) ? xmlField.length : undefined;
+                        objField.description = !Utils.isNull(xmlField.description) ? xmlField.description : objField.description;
+                        objField.inlineHelpText = !Utils.isNull(xmlField.inlineHelpText) ? xmlField.inlineHelpText : objField.inlineHelpText;
+                        objField.namespace = MetadataUtils.getNamespaceFromName(objField.name);
+                        objField.nillable = !Utils.isNull(xmlField.nillable) ? xmlField.nillable : true;
+                        objField.referenceTo = !Utils.isNull(xmlField.referenceTo) ? Utils.forceArray(xmlField.referenceTo) : objField.referenceTo;
+                        objField.relationshipName = objField.name.endsWith('Id') ? objField.name.substring(0, objField.name.length - 2) : objField.relationshipName;
+                        objField.relationshipName = objField.name.endsWith('__c') ? objField.name.substring(0, objField.name.length - 3) + '__r' : objField.relationshipName;
+                        objField.type = !Utils.isNull(xmlField.type) ? xmlField.type : objField.type;
+                        if (!Utils.isNull(xmlField.valueSet) && !Utils.isNull(xmlField.valueSet.valueSetDefinition)) {
+                            const values = XMLUtils.forceArray(xmlField.valueSet.valueSetDefinition.value);
+                            for (const value of values) {
+                                const pickVal = new PicklistValue();
+                                pickVal.active = !Utils.isNull(value.isActive) ? value.isActive : true;
+                                pickVal.defaultValue = !Utils.isNull(value.default) ? value.default : false;
+                                pickVal.value = !Utils.isNull(value.fullName) ? value.fullName : undefined;
+                                pickVal.label = !Utils.isNull(value.label) ? value.label : undefined;
+                                objField.addPicklistValue(pickVal);
+                            }
+                        }
+
+                        if (objField && objField.name) {
+                            newObject.addField(objField.name.toLowerCase(), objField);
                         }
                     }
+                }
+                if (FileChecker.isExists(recordTypesFolder)) {
+                    const recordTypes = FileReader.readDirSync(recordTypesFolder);
+                    for (const recordType of recordTypes) {
+                        const xmlRoot = XMLParser.parseXML(FileReader.readFileSync(recordTypesFolder + '/' + recordType));
+                        const xmlRT = xmlRoot['RecordType'];
+                        const objRT = new RecordType(xmlRT.fullName);
+                        objRT.developerName = xmlRT.fullName;
+                        objRT.name = !Utils.isNull(xmlRT.label) ? xmlRT.label : undefined;
+                        if (objRT && objRT.developerName) {
+                            newObject.addRecordType(objRT.developerName.toLowerCase(), objRT);
+                        }
+                    }
+                }
+                newObject.addSystemFields();
+                sObjects[newObject.name.toLowerCase()] = newObject;
+            } catch (error) {
 
-                    if (objField && objField.name) {
-                        newObject.addField(objField.name.toLowerCase(), objField);
-                    }
-                }
             }
-            if (FileChecker.isExists(recordTypesFolder)) {
-                const recordTypes = FileReader.readDirSync(recordTypesFolder);
-                for (const recordType of recordTypes) {
-                    const xmlRoot = XMLParser.parseXML(FileReader.readFileSync(recordTypesFolder + '/' + recordType));
-                    const xmlRT = xmlRoot['RecordType'];
-                    const objRT = new RecordType(xmlRT.fullName);
-                    objRT.developerName = xmlRT.fullName;
-                    objRT.name = !Utils.isNull(xmlRT.label) ? xmlRT.label : undefined;
-                    if (objRT && objRT.developerName) {
-                        newObject.addRecordType(objRT.developerName.toLowerCase(), objRT);
-                    }
-                }
-            }
-            newObject.addSystemFields();
-            sObjects[newObject.name.toLowerCase()] = newObject;
         }
         return sObjects;
     }
@@ -739,6 +743,7 @@ export class MetadataFactory {
             let fistPartBaseFolder = baseFolderSplits[0];
             let lastPartFolder = baseFolderSplits[baseFolderSplits.length - 1];
             let metadataType;
+            let isMetadataAPI = false;
             if (fistPartBaseFolder === 'lwc' && StrUtils.contains(fileNameWithExt, 'eslintrc.json')) {
                 continue;
             }
@@ -762,8 +767,15 @@ export class MetadataFactory {
             } else {
                 fileName = fileNameWithExt;
             }
+            if (metadataType.xmlName === MetadataTypes.CUSTOM_OBJECT) {
+                const dirName = PathUtils.getBasename(PathUtils.getDirname(filePath));
+                if (dirName === 'objects') {
+                    isMetadataAPI = true;
+                }
+            }
             if (diff.mode === 'new file' || diff.mode === 'edit file') {
-                if (METADATA_XML_RELATION[metadataType.xmlName]) {
+                if ((METADATA_XML_RELATION[metadataType.xmlName] && metadataType.xmlName !== MetadataTypes.CUSTOM_OBJECT)
+                    || METADATA_XML_RELATION[metadataType.xmlName] && metadataType.xmlName === MetadataTypes.CUSTOM_OBJECT && isMetadataAPI) {
                     let possibleMetadataToAddOnDeploy = analizeDiffChanges(diff.addChanges, metadataForDeploy, metadataType, fileName, filePath);
                     let possibleMetadataToAddOnDelete = analizeDiffChanges(diff.removeChanges, metadataForDelete, metadataType, fileName, filePath);
                     if (possibleMetadataToAddOnDeploy) {
@@ -792,7 +804,7 @@ export class MetadataFactory {
                     });
                 }
             } else if (diff.mode === 'deleted file') {
-                if (METADATA_XML_RELATION[metadataType.xmlName]) {
+                if (METADATA_XML_RELATION[metadataType.xmlName] && metadataType.xmlName !== MetadataTypes.CUSTOM_OBJECT) {
                     let possibleMetadataToAddOnDelete = analizeDiffChanges(diff.removeChanges, metadataForDelete, metadataType, fileName, filePath);
                     if (possibleMetadataToAddOnDelete) {
                         metadataForDelete = MetadataUtils.combineMetadata(metadataForDelete, possibleMetadataToAddOnDelete);
@@ -840,6 +852,36 @@ export class MetadataFactory {
                 }
             }
         }
+        const standardTypes = [MetadataTypes.CUSTOM_OBJECT, MetadataTypes.CUSTOM_FIELD, MetadataTypes.CUSTOM_TAB];
+        for (const type of standardTypes) {
+            if (metadataForDelete && metadataForDelete[type] && Utils.hasKeys(metadataForDelete[type].childs)) {
+                for (const objKey of Object.keys(metadataForDelete[type].childs)) {
+                    if (type === MetadataTypes.CUSTOM_OBJECT) {
+                        if (!StrUtils.contains(metadataForDelete[type].childs[objKey].name, '__')) {
+                            delete metadataForDelete[type].childs[objKey];
+                        }
+                    } else if (type === MetadataTypes.CUSTOM_TAB) {
+                        if (!StrUtils.contains(metadataForDelete[type].childs[objKey].name, 'standard-')) {
+                            delete metadataForDelete[type].childs[objKey];
+                        }
+                    } else if (MetadataTypes.CUSTOM_FIELD) {
+                        if (Utils.hasKeys(metadataForDelete[type].childs[objKey].childs)) {
+                            for (const itemKey of Object.keys(metadataForDelete[type].childs[objKey].childs)) {
+                                if (!StrUtils.contains(metadataForDelete[type].childs[objKey].childs[itemKey].name, '__')) {
+                                    delete metadataForDelete[type].childs[objKey].childs[itemKey];
+                                }
+                            }
+                        }
+                        if (!Utils.hasKeys(metadataForDelete[type].childs[objKey].childs)) {
+                            delete metadataForDelete[type];
+                        }
+                    }
+                }
+                if (!Utils.hasKeys(metadataForDelete[type].childs)) {
+                    delete metadataForDelete[type];
+                }
+            }
+        }
         let typesForPriorDelete = [
             MetadataTypes.LIGHTNING_COMPONENT_BUNDLE,
             MetadataTypes.AURA_DEFINITION_BUNDLE,
@@ -865,7 +907,16 @@ export class MetadataFactory {
             MetadataTypes.SHARING_CRITERIA_RULE,
             MetadataTypes.SHARING_OWNER_RULE,
             MetadataTypes.SHARING_GUEST_RULE,
-            MetadataTypes.SHARING_TERRITORY_RULE
+            MetadataTypes.SHARING_TERRITORY_RULE,
+            MetadataTypes.ASSIGNMENT_RULE,
+            MetadataTypes.ASSIGNMENT_RULES,
+            MetadataTypes.AUTORESPONSE_RULE,
+            MetadataTypes.AUTORESPONSE_RULES,
+            MetadataTypes.ESCALATION_RULE,
+            MetadataTypes.ESCALATION_RULES,
+            MetadataTypes.MATCHING_RULE,
+            MetadataTypes.MATCHING_RULES,
+            MetadataTypes.CUSTOM_OBJECT,
         ];
         priorMetadataTypes(typesForPriorDeploy, metadataForDeploy, metadataForDelete);
         metadataForDeploy = MetadataUtils.orderMetadata(metadataForDeploy, true);
@@ -1090,47 +1141,51 @@ function getMetadataFromFiles(metadataDetail: MetadataDetail, metadata: { [key: 
     let collectionsData = METADATA_XML_RELATION[metadataDetail.xmlName];
     for (const file of files) {
         let path = folderPath + '/' + file;
-        let xmlData = XMLParser.parseXML(FileReader.readFileSync(path));
-        if (metadataDetail.xmlName === MetadataTypes.CUSTOM_LABELS) {
-            if (xmlData[metadataDetail.xmlName]) {
-                Object.keys(collectionsData).forEach(function (collectionName) {
-                    let collectionData = collectionsData[collectionName];
-                    if (xmlData[metadataDetail.xmlName][collectionName]) {
-                        xmlData[metadataDetail.xmlName][collectionName] = Utils.forceArray(xmlData[metadataDetail.xmlName][collectionName]);
-                        for (let xmlElement of xmlData[metadataDetail.xmlName][collectionName]) {
-                            let elementKey = xmlElement[collectionData.fieldKey];
+        try {
+            let xmlData = XMLParser.parseXML(FileReader.readFileSync(path));
+            if (metadataDetail.xmlName === MetadataTypes.CUSTOM_LABELS) {
+                if (xmlData[metadataDetail.xmlName]) {
+                    Object.keys(collectionsData).forEach(function (collectionName) {
+                        let collectionData = collectionsData[collectionName];
+                        if (xmlData[metadataDetail.xmlName][collectionName]) {
+                            xmlData[metadataDetail.xmlName][collectionName] = Utils.forceArray(xmlData[metadataDetail.xmlName][collectionName]);
+                            for (let xmlElement of xmlData[metadataDetail.xmlName][collectionName]) {
+                                let elementKey = xmlElement[collectionData.fieldKey];
+                                if (!metadata[collectionData.type]) {
+                                    metadata[collectionData.type] = new MetadataType(collectionData.type, false, folderPath, metadataDetail.suffix);
+                                }
+                                if (!metadata[collectionData.type].childs[elementKey]) {
+                                    metadata[collectionData.type].childs[elementKey] = new MetadataObject(elementKey, false, path);
+                                }
+                            }
+                        }
+                    });
+                }
+            } else {
+                if (xmlData[metadataDetail.xmlName]) {
+                    Object.keys(collectionsData).forEach(function (collectionName) {
+                        let collectionData = collectionsData[collectionName];
+                        if (xmlData[metadataDetail.xmlName][collectionName]) {
+                            let sObj = file.substring(0, file.indexOf('.'));
                             if (!metadata[collectionData.type]) {
                                 metadata[collectionData.type] = new MetadataType(collectionData.type, false, folderPath, metadataDetail.suffix);
                             }
-                            if (!metadata[collectionData.type].childs[elementKey]) {
-                                metadata[collectionData.type].childs[elementKey] = new MetadataObject(elementKey, false, path);
+                            if (!metadata[collectionData.type].childs[sObj]) {
+                                metadata[collectionData.type].childs[sObj] = new MetadataObject(sObj, false);
+                            }
+                            xmlData[metadataDetail.xmlName][collectionName] = Utils.forceArray(xmlData[metadataDetail.xmlName][collectionName]);
+                            for (let xmlElement of xmlData[metadataDetail.xmlName][collectionName]) {
+                                let elementKey = xmlElement[collectionData.fieldKey];
+                                if (!metadata[collectionData.type].childs[sObj].childs[elementKey]) {
+                                    metadata[collectionData.type].childs[sObj].childs[elementKey] = new MetadataItem(elementKey, false, path);
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                }
             }
-        } else {
-            if (xmlData[metadataDetail.xmlName]) {
-                Object.keys(collectionsData).forEach(function (collectionName) {
-                    let collectionData = collectionsData[collectionName];
-                    if (xmlData[metadataDetail.xmlName][collectionName]) {
-                        let sObj = file.substring(0, file.indexOf('.'));
-                        if (!metadata[collectionData.type]) {
-                            metadata[collectionData.type] = new MetadataType(collectionData.type, false, folderPath, metadataDetail.suffix);
-                        }
-                        if (!metadata[collectionData.type].childs[sObj]) {
-                            metadata[collectionData.type].childs[sObj] = new MetadataObject(sObj, false);
-                        }
-                        xmlData[metadataDetail.xmlName][collectionName] = Utils.forceArray(xmlData[metadataDetail.xmlName][collectionName]);
-                        for (let xmlElement of xmlData[metadataDetail.xmlName][collectionName]) {
-                            let elementKey = xmlElement[collectionData.fieldKey];
-                            if (!metadata[collectionData.type].childs[sObj].childs[elementKey]) {
-                                metadata[collectionData.type].childs[sObj].childs[elementKey] = new MetadataItem(elementKey, false, path);
-                            }
-                        }
-                    }
-                });
-            }
+        } catch (error) {
+
         }
     }
 }
@@ -1416,24 +1471,28 @@ function getCustomObjectsMetadata(metadata: { [key: string]: MetadataType }, obj
 }
 
 function extractDataForMetadataAPI(metadata: { [key: string]: MetadataType }, filename: string, filePath: string) {
-    const xmlRoot = XMLParser.parseXML(FileReader.readFileSync(filePath));
-    if (xmlRoot[MetadataTypes.CUSTOM_OBJECT]) {
-        const objName = filename.substring(0, filename.indexOf('.'));
-        metadata[MetadataTypes.CUSTOM_OBJECT].childs[objName] = new MetadataObject(objName, false, filePath);
-        const xmlData = xmlRoot[MetadataTypes.CUSTOM_OBJECT];
-        for (const xmlFieldName of Object.keys(METADATA_XML_RELATION[MetadataTypes.CUSTOM_OBJECT])) {
-            if (!Utils.isNull(xmlData[xmlFieldName])) {
-                const xlmRelationData = METADATA_XML_RELATION[MetadataTypes.CUSTOM_OBJECT];
-                const objects = new MetadataObject(objName, false, filePath);
-                xmlData[xmlFieldName] = XMLUtils.forceArray(xmlData[xmlFieldName]);
-                for (const data of xmlData[xmlFieldName]) {
-                    objects.addChild(new MetadataItem(data[xlmRelationData.fieldKey], false, filePath));
-                }
-                if (metadata[xlmRelationData.type]) {
-                    metadata[xlmRelationData.type].childs[objName] = objects;
+    try {
+        const xmlRoot = XMLParser.parseXML(FileReader.readFileSync(filePath));
+        if (xmlRoot[MetadataTypes.CUSTOM_OBJECT]) {
+            const objName = filename.substring(0, filename.indexOf('.'));
+            metadata[MetadataTypes.CUSTOM_OBJECT].childs[objName] = new MetadataObject(objName, false, filePath);
+            const xmlData = xmlRoot[MetadataTypes.CUSTOM_OBJECT];
+            for (const xmlFieldName of Object.keys(METADATA_XML_RELATION[MetadataTypes.CUSTOM_OBJECT])) {
+                if (!Utils.isNull(xmlData[xmlFieldName])) {
+                    const xlmRelationData = METADATA_XML_RELATION[MetadataTypes.CUSTOM_OBJECT];
+                    const objects = new MetadataObject(objName, false, filePath);
+                    xmlData[xmlFieldName] = XMLUtils.forceArray(xmlData[xmlFieldName]);
+                    for (const data of xmlData[xmlFieldName]) {
+                        objects.addChild(new MetadataItem(data[xlmRelationData.fieldKey], false, filePath));
+                    }
+                    if (metadata[xlmRelationData.type]) {
+                        metadata[xlmRelationData.type].childs[objName] = objects;
+                    }
                 }
             }
         }
+    } catch (error) {
+
     }
 }
 
@@ -1725,13 +1784,19 @@ function priorMetadataTypes(types: string[], metadataToPrior: { [key: string]: M
                     }
                     Object.keys(metadataToPrior[type].childs[childKey].childs).forEach(function (grandChildKey) {
                         if (metadataToRemove[type] && metadataToRemove[type].childs[childKey] && metadataToRemove[type].childs[childKey].childs[grandChildKey] && metadataToRemove[type].childs[childKey].childs[grandChildKey].checked) {
-                            metadataToRemove[type].childs[childKey].childs[grandChildKey].checked = false;
+                            delete metadataToRemove[type].childs[childKey].childs[grandChildKey];
                         }
                     });
+                    if (metadataToRemove[type] && metadataToRemove[type].childs[childKey] && !Utils.hasKeys(metadataToRemove[type].childs[childKey].childs)) {
+                        delete metadataToRemove[type].childs[childKey];
+                    }
                 } else {
                     if (metadataToRemove[type] && metadataToRemove[type].childs[childKey] && metadataToRemove[type].childs[childKey].checked) {
-                        metadataToRemove[type].childs[childKey].checked = false;
+                        delete metadataToRemove[type].childs[childKey];
                     }
+                }
+                if (metadataToRemove[type] && !Utils.hasKeys(metadataToRemove[type].childs)) {
+                    delete metadataToRemove[type];
                 }
             });
         }

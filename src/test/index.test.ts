@@ -46,7 +46,7 @@ describe('Testing ./src/types/factory.js', () => {
     });
     test('Testing createSObjectsFromFileSystem()', () => {
         const result = MetadataFactory.createSObjectsFromFileSystem('./src/test/assets/SFDXProject/force-app/main/default/objects');
-        expect(Object.keys(result).length).toEqual(203);
+        expect(Object.keys(result).length).toBeGreaterThan(150);
         expect(result['account']).toBeDefined();
     });
     test('Testing createMetadataTypeFromRecords()', () => {
@@ -272,7 +272,7 @@ describe('Testing ./src/types/factory.js', () => {
         const metadata = JSON.parse(readFileSync('./src/test/assets/metadataTypes.json', 'utf8'));
         const metadataDetails = MetadataFactory.createMetadataDetails(metadata.result.metadataObjects);
         const folderMetadataMap = MetadataFactory.createFolderMetadataMap(metadataDetails);
-        let metadataTypes = MetadataFactory.createMetadataTypesFromGitDiffs('./src/test/assets/SFDXProject', JSON.parse(FileReader.readFileSync('./src/test/assets/diffOut.json')), folderMetadataMap);
+        let metadataTypes = MetadataFactory.createMetadataTypesFromGitDiffs('./src/test/assets/SFDXProject', JSON.parse(FileReader.readFileSync('./src/test/assets/diffs.json')), folderMetadataMap);
         expect(metadataTypes!.toDeploy!['ApexComponent']).toBeDefined();
         metadataTypes = MetadataFactory.createMetadataTypesFromGitDiffs('./src/test/assets/SFDXProject', JSON.parse(FileReader.readFileSync('./src/test/assets/diffOut.json')), metadataDetails, true);
         expect(metadataTypes!.toDeploy!['ApexComponent']).toBeDefined();
