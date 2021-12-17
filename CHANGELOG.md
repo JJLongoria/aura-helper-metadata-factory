@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [2.1.0 - 2021-12-14]
+### Added
+- Better support to metadata api to get git changes from gitDiffs
+- Prevent errors when XML are malformed.
+
 ## [2.0.0 - 2021-12-13]
 ### Added
 - Changed to Typescript
