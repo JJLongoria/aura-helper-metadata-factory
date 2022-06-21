@@ -200,7 +200,7 @@ export class MetadataFactory {
     static createMetadataTypeFromRecords(metadataTypeName: string, records: any[], foldersByType: any, namespacePrefix?: string, addAll?: boolean): MetadataType {
         const metadataType = new MetadataType(metadataTypeName);
         for (const record of records) {
-            const folderDevName = getFolderDeveloperName(foldersByType[metadataTypeName], (record.FolderId || record.FolderName), metadataTypeName !== MetadataTypes.REPORT);
+            const folderDevName = getFolderDeveloperName(foldersByType[metadataTypeName] || foldersByType['Email'], (record.FolderId || record.FolderName), metadataTypeName !== MetadataTypes.REPORT);
             if (folderDevName === undefined) {
                 continue;
             }

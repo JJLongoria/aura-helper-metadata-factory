@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [2.1.1 - 2022-06-21]
+### Fixed
+- Fixed the Email template group problem when create metadata types from records.
+
 ## [2.1.0 - 2021-12-14]
 ### Added
 - Better support to metadata api to get git changes from gitDiffs
