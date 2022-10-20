@@ -1208,7 +1208,7 @@ function getMetadataFromFolders(folderPath: string, metadataDetail: MetadataDeta
 
             if (metadataName && metadataName.length > 0 && !StrUtils.contains(metadataName, 'quickAction-meta') && !metadataObjects[sObj].childs[metadataName]) {
                 metadataObjects[sObj].childs[metadataName] = new MetadataItem(metadataName, false, path);
-            } else if (groupName) {
+            } else if (groupName && metadataObjects[groupName]) {
                 metadataObjects[groupName].childs[sObj] = new MetadataItem(sObj, false, path);
             } else {
                 metadataObjects[sObj].childs[sObj] = new MetadataItem(sObj, false, path);
