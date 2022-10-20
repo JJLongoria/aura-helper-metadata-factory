@@ -1680,12 +1680,12 @@ function getMetadataObjectsFromGitDiff(metadataDetail: MetadataDetail, baseFolde
     } else if (metadataDetail.xmlName === MetadataTypes.QUICK_ACTION) {
         let fileNameParts = fileName.split('.');
         let sobj = fileNameParts[0].trim();
-        let item = fileNameParts[1].trim();
-        if (sobj === item && groupGlobalActions) {
-            sobj = 'GlobalActions';
-        }
-        else if (sobj === item) {
+        let item = fileNameParts[1]?.trim();
+        if ((sobj === item || !item)) {
             item = sobj;
+            if(groupGlobalActions){
+                sobj = 'GlobalActions';
+            }
         }
         if (!objects[sobj]) {
             objects[sobj] = new MetadataObject(sobj, true, folderPath);
