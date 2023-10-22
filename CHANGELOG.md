@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [2.1.5 - 2023-10-22]
+### Fixed
+- Fixed a little error in some cases when detecting chages in some Metadata Types like Assignment Rules.
+
 ## [2.1.1 - 2022-06-21]
 ### Fixed
 - Fixed the Email template group problem when create metadata types from records.

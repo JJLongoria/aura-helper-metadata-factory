@@ -904,6 +904,7 @@ export class MetadataFactory {
             MetadataTypes.WORKFLOW_TASK,
             MetadataTypes.WORKFLOW_RULE,
             MetadataTypes.WORKFLOW_ALERT,
+            MetadataTypes.SHARING_RULES,
             MetadataTypes.SHARING_CRITERIA_RULE,
             MetadataTypes.SHARING_OWNER_RULE,
             MetadataTypes.SHARING_GUEST_RULE,
@@ -1605,13 +1606,15 @@ function analizeDiffChanges(diffChanges: string[], metadata: { [key: string]: Me
             }
         }
     }
-    if (!added) {
+    //if (!added) {
         possibleMetadataToAdd = {};
-        possibleMetadataToAdd[metadataDetail.xmlName] = new MetadataType(metadataDetail.xmlName, true, typePath, metadataDetail.suffix);
+        if(!possibleMetadataToAdd[metadataDetail.xmlName]){
+            possibleMetadataToAdd[metadataDetail.xmlName] = new MetadataType(metadataDetail.xmlName, true, typePath, metadataDetail.suffix);
+        }
         if (!possibleMetadataToAdd[metadataDetail.xmlName].childs[fileName]) {
             possibleMetadataToAdd[metadataDetail.xmlName].childs[fileName] = new MetadataObject(fileName, true, filePath);
         }
-    }
+    //}
     return possibleMetadataToAdd;
 }
 

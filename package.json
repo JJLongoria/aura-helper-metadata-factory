@@ -2,7 +2,7 @@
   "name": "@aurahelper/metadata-factory",
   "productName": "Aura Helper Metadata Factory",
   "displayName": "Aura Helper Framework Metadata Factory",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "description": "Library to create Aura Helper Metadata types from SFDX Responses, Local Project or other data sources",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
